@@ -39,8 +39,8 @@
 #' @importFrom shinythemes shinytheme
 #' @importFrom magrittr %>%
 #' @importFrom forcats fct_rev
-#' @importFrom forcats fct_rev
 #' @importFrom tibble tribble 
+#' @importFrom DT dataTableOutput renderDataTable datatable 
 #'
 #' @name cocktailApp
 #' @rdname cocktailApp

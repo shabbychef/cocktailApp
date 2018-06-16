@@ -2,6 +2,9 @@
 
 export(cocktailApp)
 import(shiny)
+importFrom(DT,dataTableOutput)
+importFrom(DT,datatable)
+importFrom(DT,renderDataTable)
 importFrom(dplyr,arrange)
 importFrom(dplyr,coalesce)
 importFrom(dplyr,distinct)

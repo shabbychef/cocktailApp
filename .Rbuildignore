@@ -13,7 +13,6 @@ m4
 Makefile
 man-roxygen
 ^\.docker_img$
-^nodist$
 ^rebuildTags.sh
 ^cocktailApp.*.tar.gz$
 ^cocktailApp.Rcheck$
@@ -41,7 +40,5 @@ vignettes
 Rd2.pdf
 .Rd2pdf*
 submodule_directions.sh
-rpkg_make
 ^data-raw$
-rpkg_make
 ^app.R$
