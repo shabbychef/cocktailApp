@@ -38,6 +38,7 @@ The app can be run in a few ways:
 	 Shiny Server serves.
 1. You can install the package and then use the `cocktailApp()` function.
 
+![](tools/figure/Screenshot_20180616_151045.png)
 
 ## Data
 
