@@ -16,6 +16,8 @@ BugReports: https://github.com/shabbychef/PKG_NAME()/issues
 Description: A Shiny app to discover cocktails.
 Depends: 
     R (>= 3.0.2),
+    shiny
+Imports:
     dplyr,
     ggplot2,
     shinythemes,
@@ -26,8 +28,6 @@ dnl readr,
 dnl    urltools,
 dnl    stringr
     DT
-Imports:
-    shiny
 URL: https://github.com/shabbychef/PKG_NAME()
 dnl VignetteBuilder: knitr
 Collate:
