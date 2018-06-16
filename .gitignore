@@ -1,0 +1,41 @@
+# for testing, ignore these
+
+# dev stuff
+.tags
+.R_tags
+.*.swp
+.*.swo
+
+# local build check and whatnot
+*.tar.gz
+.local/
+.staging/
+*.Rcheck
+
+# unit testing
+unit_test.log
+
+# build static/dynamic
+convoluted_build.sh
+
+# automagically generated?
+# ah, but these are needed for install_github:
+#NAMESPACE
+#DESCRIPTION
+#man/
+
+.cocktailApp*installed
+# generated as part of the 'local' vignette build
+cocktailApp.tex
+cocktailApp.log
+cocktailApp/
+./cocktailApp.pdf
+*.aux
+*.bbl
+*.blg
+cache/
+.docker_img
+*.crancheck
+.Rd2pdf*/
+Rd2.pdf
+submodule_directions.sh
