@@ -72,6 +72,12 @@ The app can be run in a few ways:
 
 ## Data
 
+The underlying data to power the shiny app is also available from this package.
+It is called, simply, `cocktails`. This data frame has rows for each
+ingredient, with amounts, and units, and is joined to information about the
+cocktail, which is identified by name, an upstream ID, URL, rating, number of
+votes, and more.
+
 
 ```{r data_basic,cache=FALSE,eval=TRUE,echo=TRUE}
 library(cocktailApp)
