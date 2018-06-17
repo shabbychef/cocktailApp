@@ -18,13 +18,15 @@ Depends:
     R (>= 3.0.2),
     shiny
 Imports:
-    dplyr,
-    ggplot2,
     shinythemes,
+    dplyr,
+    tidyr,
+    tibble,
+    ggplot2,
+    magrittr,
+    ggtern,
     forcats,
 dnl readr,
-    magrittr,
-    tibble,
 dnl    urltools,
 dnl    stringr
     DT

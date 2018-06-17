@@ -35,12 +35,14 @@
 #' @import shiny
 #' @importFrom dplyr mutate arrange select filter rename left_join coalesce distinct summarize everything
 #' @importFrom utils data
-#' @importFrom ggplot2 ggplot labs coord_flip aes geom_col
+#' @importFrom ggplot2 ggplot labs coord_flip aes geom_col geom_point geom_text
 #' @importFrom shinythemes shinytheme
 #' @importFrom magrittr %>%
 #' @importFrom forcats fct_rev
 #' @importFrom tibble tribble 
 #' @importFrom DT dataTableOutput renderDataTable datatable 
+#' @importFrom tidyr spread
+#' @importFrom ggtern ggtern Tlab Llab Rlab
 #'
 #' @name cocktailApp
 #' @rdname cocktailApp
@@ -110,6 +112,7 @@ globalVariables(c('cocktails','votes','rating','cocktail','proportion','normaliz
 									'tstat','page_src','tst',
 									'has_or_must','has_and_must','has_not_must',
 									'matches_name','ingr_class','description',
+									'Ingredient1','Ingredient2','Other',
 									'ingredient','coingredient','cova','wts'))
 
 
@@ -188,6 +191,10 @@ my_ui <- function(){
 						hr(),
 						helpText('Ingredients Table:'),
 						tableOutput('ingredients_table')
+						),#UNFOLD
+				tabPanel('ternary',#FOLDUP
+						helpText('A ternary plot based on the first two Must Have ingredients selected.'),
+						plotOutput('selected_ingredients_tern_plot',height='100%',width='100%')
 						),#UNFOLD
 				tabPanel('plots',#FOLDUP
 						helpText('A bar plot of ingredients in the selected cocktails.',
@@ -445,6 +452,49 @@ my_server <- function(input, output, session) {
 		otdat <- selected_drinks() %>%
 			select(-cocktail_id,-rating)
 	},striped=TRUE,width='100%')
+
+	output$selected_ingredients_tern_plot <- renderPlot({
+		shiny::validate(shiny::need(length(input$must_have_ing) > 1,'must select 2 or more must have ingredients'))
+
+		blah <- filter_ingr() %>%
+			dplyr::filter(page_src %in% input$from_sources) %>% dplyr::select(-page_src) 
+		
+		okblah <- blah %>%
+			dplyr::group_by(cocktail_id) %>%
+				dplyr::summarize(rat=dplyr::first(rating),
+									tst=dplyr::first(tstat),
+									tot_ingr=sum(grepl('fl oz',unit)),
+									tot_has_ingr=sum(short_ingredient %in% input$must_have_ing)) %>%
+			dplyr::ungroup() %>%
+			dplyr::filter(rat >= input$min_rating,
+						 tst >= input$min_tstat,
+						 tot_ingr <= input$max_ingr,
+						 tot_ingr <= input$max_other_ingr + tot_has_ingr) %>%
+			distinct(cocktail_id)
+
+
+		blah <- okblah %>% 
+			left_join(blah,by='cocktail_id') %>%
+			dplyr::filter(unit=='fl oz') %>%
+			dplyr::filter(short_ingredient %in% input$must_have_ing[1:2]) %>%
+			dplyr::select(short_ingredient,cocktail,rating,upstream_id,normalize_amt) %>%
+			dplyr::mutate(short_ingredient=dplyr::case_when(short_ingredient==input$must_have_ing[1] ~ 'Ingredient1',
+																											short_ingredient==input$must_have_ing[2] ~ 'Ingredient2',
+																											TRUE ~ 'Error')) %>%
+			tidyr::spread(key=short_ingredient,value=normalize_amt,fill=0) %>%
+			dplyr::filter((Ingredient1 > 0) & (Ingredient2 > 0)) %>%
+			dplyr::mutate(Other=1 - (Ingredient1 + Ingredient2)) 
+
+		ph <- blah %>%
+				ggtern::ggtern(aes(x=Ingredient1,y=Ingredient2,z=Other,label=cocktail,color=rating)) +
+				ggplot2::geom_point() +
+				ggplot2::geom_text(hjust='inward',vjust='inward') +
+				ggtern::Tlab(input$must_have_ing[2]) + 
+				ggtern::Llab(input$must_have_ing[1]) + 
+				ggtern::Rlab('Other')
+		ph
+	},height=800,width=1100)
+
 
 	setBookmarkExclude(c('bookmark'))
 	observeEvent(input$bookmark,{
