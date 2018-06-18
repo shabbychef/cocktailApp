@@ -15,7 +15,27 @@ Runs the shiny app.
 \description{
 Shiny app to discover cocktails.
 
-One sentence or so that tells you some more.
+A shiny app to explore cocktails. The app allows you to enter ingredients
+that a cocktail must have, or ingredients that it must not have. One can
+filter by number of ingredients, minimum rating, minimum \sQuote{t stat}
+(computed as the rating minus the T stat zero all multiplied by the square
+root of the number of ratings). One can also search for cocktail by regex.
+
+In the main tab, titled \dQuote{drinks}, one can find a table with the
+summaries of matching cocktails. Selecting rows of this table will
+cause the cocktail table below to be populated with more details on each
+selected cocktail. Selecting rows will also populate the bar chart
+in the \dQuote{plots} tab.
+
+If two or more ingredients are selected, drinks with non-zero quantities
+of both of these will be shown in a ternary plot in the \dQuote{tern}
+tab. 
+
+In the \dQuote{other} tab is a table with common co-ingredients of the
+selected ingredients. A co-ingredient is an ingredient that commonly
+occurs with the selected ingredient, as measured by the number of
+cocktails, and by \sQuote{rho}, which is like a correlation based
+on the proportion.
 }
 \note{
 This package is maintained as a hobby.

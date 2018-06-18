@@ -19,6 +19,7 @@ The columns are defined as follows:
  \item{\code{url}}{The upstream URL.}
  \item{\code{votes}}{The number of votes in the rating. Not always available.}
  \item{\code{added}}{The date the cocktail was added to the upstream database. Not always available.}
+ \item{\code{src}}{The source of the cocktail, as listed in the upstream database. Usually not available.}
  \item{\code{short_ingredient}}{A shortened form of the ingredient. This is subject to change, as better term extraction is needed.}
  \item{\code{proportion}}{For non-garnish ingredients, this is the proportion of the given cocktail that consists of the given ingredient. This
  is a normalized amount.}

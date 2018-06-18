@@ -91,6 +91,7 @@ NULL
 #'  \item{\code{url}}{The upstream URL.}
 #'  \item{\code{votes}}{The number of votes in the rating. Not always available.}
 #'  \item{\code{added}}{The date the cocktail was added to the upstream database. Not always available.}
+#'  \item{\code{src}}{The source of the cocktail, as listed in the upstream database. Usually not available.}
 #'  \item{\code{short_ingredient}}{A shortened form of the ingredient. This is subject to change, as better term extraction is needed.}
 #'  \item{\code{proportion}}{For non-garnish ingredients, this is the proportion of the given cocktail that consists of the given ingredient. This
 #'  is a normalized amount.}
@@ -490,9 +491,10 @@ my_server <- function(input, output, session) {
 		ph <- blah %>%
 				ggtern::ggtern(ggplot2::aes_string(x=ing[1],y=ing[2],z='Other',
 																					 shape='page_src',label='cocktail',color='rating')) +
-				ggplot2::geom_point() +
+				ggplot2::geom_point(aes(size=rating),alpha=0.5) +
 				ggtern::Llab(preing[1]) + ggtern::Tlab(preing[2]) + 
-				ggplot2::geom_text(hjust='inward',vjust='inward') 
+				ggplot2::geom_text(hjust='inward',vjust='inward') +
+				ggplot2::guides(shape=guide_legend(title='page source'))
 		# see https://github.com/rstudio/shiny/issues/915
 		print(ph)
 		NULL
@@ -511,7 +513,27 @@ my_server <- function(input, output, session) {
 #'
 #' @description 
 #'
-#' One sentence or so that tells you some more.
+#' A shiny app to explore cocktails. The app allows you to enter ingredients
+#' that a cocktail must have, or ingredients that it must not have. One can
+#' filter by number of ingredients, minimum rating, minimum \sQuote{t stat}
+#' (computed as the rating minus the T stat zero all multiplied by the square
+#' root of the number of ratings). One can also search for cocktail by regex.
+#'
+#' In the main tab, titled \dQuote{drinks}, one can find a table with the
+#' summaries of matching cocktails. Selecting rows of this table will
+#' cause the cocktail table below to be populated with more details on each
+#' selected cocktail. Selecting rows will also populate the bar chart
+#' in the \dQuote{plots} tab.
+#'
+#' If two or more ingredients are selected, drinks with non-zero quantities
+#' of both of these will be shown in a ternary plot in the \dQuote{tern}
+#' tab. 
+#'
+#' In the \dQuote{other} tab is a table with common co-ingredients of the
+#' selected ingredients. A co-ingredient is an ingredient that commonly
+#' occurs with the selected ingredient, as measured by the number of
+#' cocktails, and by \sQuote{rho}, which is like a correlation based
+#' on the proportion.
 #'
 #' @usage
 #'
