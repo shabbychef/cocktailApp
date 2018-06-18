@@ -43,6 +43,7 @@
 #' @importFrom DT dataTableOutput renderDataTable datatable 
 #' @importFrom tidyr spread
 #' @importFrom ggtern ggtern Tlab Llab Rlab
+#' @importFrom stats setNames
 #'
 #' @name cocktailApp
 #' @rdname cocktailApp
@@ -112,7 +113,7 @@ globalVariables(c('cocktails','votes','rating','cocktail','proportion','normaliz
 									'tstat','page_src','tst',
 									'has_or_must','has_and_must','has_not_must',
 									'matches_name','ingr_class','description',
-									'Ingredient1','Ingredient2','Other',
+									'tot_amt','has_both','Other',
 									'ingredient','coingredient','cova','wts'))
 
 
@@ -346,12 +347,16 @@ my_server <- function(input, output, session) {
 			dplyr::inner_join(rdat %>% dplyr::select(cocktail_id),by=c('cocktail_id'))
 		otdat
 	})
-	
-	filtered_cocktails <- reactive({
+	filter_src <- reactive({
 		otdat <- filter_num_ingr() %>%
-			dplyr::filter(page_src %in% input$from_sources) %>% dplyr::select(-page_src) %>%
+			dplyr::filter(page_src %in% input$from_sources) %>% 
 			dplyr::select(cocktail,rating,amt,unit,ingredient,everything()) %>%
 			dplyr::arrange(dplyr::desc(rating),cocktail,dplyr::desc(as.numeric(grepl('fl oz',unit))),dplyr::desc(amt))
+	})
+	
+	filtered_cocktails <- reactive({
+		otdat <- filter_src() %>%
+			dplyr::select(-page_src) 
 
 		descdat <- otdat %>%
 			dplyr::filter(grepl('fl oz',unit)) %>%
@@ -454,46 +459,44 @@ my_server <- function(input, output, session) {
 	},striped=TRUE,width='100%')
 
 	output$selected_ingredients_tern_plot <- renderPlot({
-		shiny::validate(shiny::need(length(input$must_have_ing) > 1,'must select 2 or more must have ingredients'))
+		shiny::validate(shiny::need(length(input$must_have_ing) > 1,'Must select 2 or more must have ingredients.'))
+		preing <- input$must_have_ing[1:2]
 
-		blah <- filter_ingr() %>%
-			dplyr::filter(page_src %in% input$from_sources) %>% dplyr::select(-page_src) 
-		
-		okblah <- blah %>%
-			dplyr::group_by(cocktail_id) %>%
-				dplyr::summarize(rat=dplyr::first(rating),
-									tst=dplyr::first(tstat),
-									tot_ingr=sum(grepl('fl oz',unit)),
-									tot_has_ingr=sum(short_ingredient %in% input$must_have_ing)) %>%
-			dplyr::ungroup() %>%
-			dplyr::filter(rat >= input$min_rating,
-						 tst >= input$min_tstat,
-						 tot_ingr <= input$max_ingr,
-						 tot_ingr <= input$max_other_ingr + tot_has_ingr) %>%
-			distinct(cocktail_id)
+		otdat <- filter_src()
 
-
-		blah <- okblah %>% 
-			left_join(blah,by='cocktail_id') %>%
+		blah <- otdat %>%
 			dplyr::filter(unit=='fl oz') %>%
-			dplyr::filter(short_ingredient %in% input$must_have_ing[1:2]) %>%
-			dplyr::select(short_ingredient,cocktail,rating,upstream_id,normalize_amt) %>%
-			dplyr::mutate(short_ingredient=dplyr::case_when(short_ingredient==input$must_have_ing[1] ~ 'Ingredient1',
-																											short_ingredient==input$must_have_ing[2] ~ 'Ingredient2',
-																											TRUE ~ 'Error')) %>%
+			dplyr::filter(short_ingredient %in% preing) %>%
+			dplyr::select(short_ingredient,page_src,cocktail,rating,cocktail_id,normalize_amt) %>%
+			dplyr::group_by(cocktail_id,cocktail,page_src,rating,short_ingredient) %>%
+				dplyr::summarize(tot_amt=sum(normalize_amt,na.rm=TRUE)) %>%
+			dplyr::ungroup() %>%
+			dplyr::rename(normalize_amt=tot_amt) %>%
+			dplyr::group_by(cocktail_id) %>%
+				dplyr::mutate(has_both=length(normalize_amt) > 1,
+											Other=1 - sum(normalize_amt)) %>%
+			dplyr::ungroup() %>%
+			dplyr::filter(has_both) 
+
+		# fun! get CRAN checks to shut up.
+		. <- NULL
+		shiny::validate(shiny::need(nrow(blah) > 0,'No cocktails have those two ingredients. Try again.'))
+		blah <- blah %>%
 			tidyr::spread(key=short_ingredient,value=normalize_amt,fill=0) %>%
-			dplyr::filter((Ingredient1 > 0) & (Ingredient2 > 0)) %>%
-			dplyr::mutate(Other=1 - (Ingredient1 + Ingredient2)) 
+			setNames(gsub('\\s','_',names(.)))
+
+		ing <- gsub('\\s','_',preing)
 
 		ph <- blah %>%
-				ggtern::ggtern(aes(x=Ingredient1,y=Ingredient2,z=Other,label=cocktail,color=rating)) +
+				ggtern::ggtern(ggplot2::aes_string(x=ing[1],y=ing[2],z='Other',
+																					 shape='page_src',label='cocktail',color='rating')) +
 				ggplot2::geom_point() +
-				ggplot2::geom_text(hjust='inward',vjust='inward') +
-				ggtern::Tlab(input$must_have_ing[2]) + 
-				ggtern::Llab(input$must_have_ing[1]) + 
-				ggtern::Rlab('Other')
-		ph
-	},height=800,width=1100)
+				ggtern::Llab(preing[1]) + ggtern::Tlab(preing[2]) + 
+				ggplot2::geom_text(hjust='inward',vjust='inward') 
+		# see https://github.com/rstudio/shiny/issues/915
+		print(ph)
+		NULL
+	},height=900,width=1300)
 
 
 	setBookmarkExclude(c('bookmark'))

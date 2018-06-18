@@ -31,7 +31,7 @@ RUN (DEBIAN_FRONTEND=noninteractive DEBCONF_NONINTERACTIVE_SEEN=true apt-get ins
 	mkdir -p /usr/local/lib/R/site-library ; \
 	chmod -R 777 /usr/local/lib/R/site-library ; \
 	sync ; \
-	/usr/local/bin/install2.r testthat roxygen2 devtools shiny shinythemes DT dplyr ggplot2 magrittr urltools string forcats lubridate; )
+	/usr/local/bin/install2.r testthat roxygen2 devtools shiny shinythemes DT dplyr ggplot2 magrittr urltools string forcats ggtern; )
 
 RUN groupadd -g 1001 spav && useradd -g spav -u 1001 spav;
 USER spav
