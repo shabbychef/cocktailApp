@@ -35,12 +35,11 @@
 #' @import shiny
 #' @importFrom dplyr mutate arrange select filter rename left_join coalesce distinct summarize everything
 #' @importFrom utils data
-#' @importFrom ggplot2 ggplot labs coord_flip aes geom_col geom_point geom_text
+#' @importFrom ggplot2 ggplot labs coord_flip aes geom_col geom_point geom_text guide_legend
 #' @importFrom shinythemes shinytheme
 #' @importFrom magrittr %>%
 #' @importFrom forcats fct_rev
 #' @importFrom tibble tribble 
-#' @importFrom DT dataTableOutput renderDataTable datatable 
 #' @importFrom tidyr spread
 #' @importFrom ggtern ggtern Tlab Llab Rlab
 #' @importFrom stats setNames
@@ -65,7 +64,7 @@ NULL
 #' \newcommand{\CRANpkg}{\href{https://cran.r-project.org/package=#1}{\pkg{#1}}}
 #' \newcommand{\cocktailApp}{\CRANpkg{cocktailApp}}
 #'
-#' @section \cocktailApp{} Initial Version 0.1.0 (2018-06-15) :
+#' @section \cocktailApp{} Initial Version 0.1.0 (2018-06-19) :
 #' \itemize{
 #' \item first CRAN release.
 #' }
@@ -75,37 +74,63 @@ NULL
 NULL
 
 #' @title Cocktails Data
-#' @description Ingredients of several thousand cocktails, scraped from the web.
+#' @description Ingredients of nearly 16 thousand cocktails, scraped from the web.
 #' @format A \code{data.frame} object with 77,301 rows and 12 columns. The
 #' data are scraped from three websites: Difford's guide, Webtender, and 
-#' Kindred Cocktails.
+#' Kindred Cocktails, in late 2017.
 #'
 #' The columns are defined as follows:
 #' \describe{
 #'  \item{\code{amt}}{The numeric amount of the ingredient.}
-#'  \item{\code{unit}}{The unit corresponding to the amount. Most have been converted to \code{fl oz}.}
-#'  \item{\code{ingredient}}{The name of the ingredient.}
+#'  \item{\code{unit}}{The unit corresponding to the amount. 
+#'  The most common entry is \code{fl oz}, which is the unit for \sQuote{main}
+#'  ingredients.
+#'  The second most common entry is \code{garnish}. These two units
+#'  account for over 95 percent of the rows of the data.}
+#'  \item{\code{ingredient}}{The name of the ingredient. These may have odd
+#'  qualifiers, or brand specifications. Some of these qualifications are
+#'  stripped out in the \code{short_ingredient} field.}
 #'  \item{\code{cocktail}}{The name of the cocktail.}
-#'  \item{\code{rating}}{The rating assigned to the cocktail in the upstream database.}
+#'  \item{\code{rating}}{The rating assigned to the cocktail in the upstream database. For some
+#'  sources, the ratings have been rescaled. Ratings are on a scale of 0 to 5.}
 #'  \item{\code{upstream_id}}{An ID code from the upstream source.}
 #'  \item{\code{url}}{The upstream URL.}
-#'  \item{\code{votes}}{The number of votes in the rating. Not always available.}
+#'  \item{\code{votes}}{The number of votes in the rating, from the upstream
+#'  database. Not always available.}
 #'  \item{\code{added}}{The date the cocktail was added to the upstream database. Not always available.}
 #'  \item{\code{src}}{The source of the cocktail, as listed in the upstream database. Usually not available.}
-#'  \item{\code{short_ingredient}}{A shortened form of the ingredient. This is subject to change, as better term extraction is needed.}
-#'  \item{\code{proportion}}{For non-garnish ingredients, this is the proportion of the given cocktail that consists of the given ingredient. This
-#'  is a normalized amount.}
+#'  \item{\code{short_ingredient}}{A shortened form of the ingredient, stripping away some of the qualifiers. 
+#'  This is subject to change in future releases of this package, when a better term extraction solution is found.}
+#'  \item{\code{proportion}}{For ingredients where the \code{unit} is \code{fl oz}, 
+#'   this is the proportion of the given cocktail that consists of the given ingredient. For a given
+#'   cocktail, the proportions should sum to one.}
 #' }
 #' @source Difford's Guide, \url{http://www.diffordsguide.com/},
 #' Webtender, \url{http://www.webtender.com},
 #' Kindred Cocktails, \url{http://kindredcocktails.com}.
+#' @note 
+#' The data were scraped from several websites, which falls in a legal gray area.
+#' While, in general, raw factual data can not be copyright, there is a difference between the law and a lawsuit. 
+#' The package author in no way claims any copyright on this data.
 #' @author Steven E. Pav \email{steven@@gilgamath.com}
 #' @examples
 #' \dontrun{
 #' data(cocktails)
 #' str(cocktails)
+#'
+#' require(dplyr)
+#' cocktails %>%
+#' 	filter(short_ingredient %in% c('Averna','Bourbon')) %>%
+#' 	group_by(cocktail,url) %>%
+#' 		mutate(isok=n() > 1) %>%
+#' 	ungroup() %>%
+#' 	filter(isok) %>%
+#' 	arrange(desc(rating),cocktail) %>%
+#' 	select(cocktail,ingredient,amt,unit,rating)
+#'
 #' }
 "cocktails"
+
 
 globalVariables(c('cocktails','votes','rating','cocktail','proportion','normalize_amt','url','short_ingredient','unit',
 									'cocktail_id','coamount','amt','norm_amt',
@@ -494,7 +519,7 @@ my_server <- function(input, output, session) {
 				ggplot2::geom_point(aes(size=rating),alpha=0.5) +
 				ggtern::Llab(preing[1]) + ggtern::Tlab(preing[2]) + 
 				ggplot2::geom_text(hjust='inward',vjust='inward') +
-				ggplot2::guides(shape=guide_legend(title='page source'))
+				ggplot2::guides(shape=guide_legend(title='source'))
 		# see https://github.com/rstudio/shiny/issues/915
 		print(ph)
 		NULL
@@ -553,6 +578,7 @@ my_server <- function(input, output, session) {
 cocktailApp <- function() {
 	shinyApp(ui=my_ui(), server=my_server)
 }
+# importFrom DT dataTableOutput renderDataTable datatable 
 
 #for vim modeline: (do not edit)
 # vim:fdm=marker:fmr=FOLDUP,UNFOLD:cms=#%s:syn=r:ft=r

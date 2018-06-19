@@ -42,3 +42,4 @@ Rd2.pdf
 submodule_directions.sh
 ^data-raw$
 ^app.R$
+foo.r

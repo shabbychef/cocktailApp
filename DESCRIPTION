@@ -4,8 +4,8 @@ Authors@R: c(person(c("Steven", "E."), "Pav",
     role=c("aut","cre"),
     email="shabbychef@gmail.com",
     comment = c(ORCID = "0000-0002-4197-6195")))
-Version: 0.0.0.0002
-Date: 2018-06-17
+Version: 0.0.0.0003
+Date: 2018-06-18
 License: LGPL-3
 Title: Shiny app to discover cocktails
 BugReports: https://github.com/shabbychef/cocktailApp/issues

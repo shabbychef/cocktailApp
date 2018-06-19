@@ -9,7 +9,7 @@ News for package \sQuote{cocktailApp}
 \newcommand{\CRANpkg}{\href{https://cran.r-project.org/package=#1}{\pkg{#1}}}
 \newcommand{\cocktailApp}{\CRANpkg{cocktailApp}}
 }
-\section{\cocktailApp{} Initial Version 0.1.0 (2018-06-15) }{
+\section{\cocktailApp{} Initial Version 0.1.0 (2018-06-19) }{
 
 \itemize{
 \item first CRAN release.

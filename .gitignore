@@ -39,3 +39,4 @@ cache/
 .Rd2pdf*/
 Rd2.pdf
 submodule_directions.sh
+foo.r
