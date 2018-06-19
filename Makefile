@@ -8,9 +8,10 @@
 ############### FLAGS ###############
 
 VMAJOR 						 = 0
-VMINOR 						 = 0
+VMINOR 						 = 1
 VPATCH  					 = 0
-VDEV 							 = .0003
+#VDEV 							 = .0004
+VDEV 							 = 
 PKG_NAME 					:= cocktailApp
 
 RPKG_USES_RCPP 		:= 0

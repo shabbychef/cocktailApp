@@ -1,4 +1,9 @@
 ```{r setup,include=FALSE}
+#---
+#Title: cocktailApp
+#Date: Tue Jun 19 2018 07:58:50 AM
+#---
+
 # set the knitr options ... for everyone!
 # if you unset this, then vignette build bonks. oh, joy.
 #opts_knit$set(progress=TRUE)
