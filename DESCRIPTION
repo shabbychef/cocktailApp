@@ -7,9 +7,13 @@ Authors@R: c(person(c("Steven", "E."), "Pav",
 Version: 0.0.0.0003
 Date: 2018-06-18
 License: LGPL-3
-Title: Shiny app to discover cocktails
+Title: Shiny App to Discover Cocktails
 BugReports: https://github.com/shabbychef/cocktailApp/issues
-Description: A Shiny app to discover cocktails.
+Description: A Shiny app to discover cocktails. The
+    app allows one to search for cocktails by ingredient,
+    filter on rating, and number of ingredients. The
+    package also contains data with the ingredients of
+    nearly 16 thousand cocktails scraped from the web.
 Depends: 
     R (>= 3.0.2),
     shiny
@@ -26,4 +30,3 @@ Imports:
 URL: https://github.com/shabbychef/cocktailApp
 Collate:
     'cocktailApp.r'
-RoxygenNote: 6.0.1
