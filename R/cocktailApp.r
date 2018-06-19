@@ -112,7 +112,7 @@ NULL
 #' The data were scraped from several websites, which falls in a legal gray area.
 #' While, in general, raw factual data can not be copyright, there is a difference between the law and a lawsuit. 
 #' The package author in no way claims any copyright on this data.
-#' @author Steven E. Pav \email{steven@@gilgamath.com}
+#' @author Steven E. Pav \email{shabbychef@@gmail.com}
 #' @examples
 #' \dontrun{
 #' data(cocktails)
@@ -573,7 +573,7 @@ my_server <- function(input, output, session) {
 #' \dontrun{
 #' cocktailApp()
 #' }
-#' @author Steven E. Pav \email{steven@@gilgamath.com}
+#' @author Steven E. Pav \email{shabbychef@@gmail.com}
 #' @export
 cocktailApp <- function() {
 	shinyApp(ui=my_ui(), server=my_server)

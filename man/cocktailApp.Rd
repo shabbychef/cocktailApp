@@ -59,7 +59,7 @@ Steven E. Pav \email{shabbychef@gmail.com}
 
 Steven E. Pav \email{shabbychef@gmail.com}
 
-Steven E. Pav \email{steven@gilgamath.com}
+Steven E. Pav \email{shabbychef@gmail.com}
 }
 \keyword{package}
 \keyword{shiny}
