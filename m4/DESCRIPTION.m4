@@ -11,9 +11,9 @@ Authors@R: c(person(c("Steven", "E."), "Pav",
 Version: VERSION()
 Date: DATE()
 License: LGPL-3
-Title: Shiny App to Discover Cocktails
+Title: 'shiny' App to Discover Cocktails
 BugReports: https://github.com/shabbychef/PKG_NAME()/issues
-Description: A Shiny app to discover cocktails. The
+Description: A 'shiny' app to discover cocktails. The
     app allows one to search for cocktails by ingredient,
     filter on rating, and number of ingredients. The
     package also contains data with the ingredients of
