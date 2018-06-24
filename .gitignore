@@ -40,3 +40,4 @@ cache/
 Rd2.pdf
 submodule_directions.sh
 foo.r
+*.csv.bak

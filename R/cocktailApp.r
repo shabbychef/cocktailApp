@@ -44,8 +44,8 @@
 #' @importFrom ggtern ggtern Tlab Llab Rlab
 #' @importFrom stats setNames
 #'
-#' @name cocktailApp
-#' @rdname cocktailApp
+#' @name cocktailApp-package
+#' @rdname cocktailApp-package
 #' @docType package
 #' @title Shiny app to discover cocktails.
 #' @keywords package
@@ -112,9 +112,7 @@ NULL
 #' The data were scraped from several websites, which falls in a legal gray area.
 #' While, in general, raw factual data can not be copyright, there is a difference between the law and a lawsuit. 
 #' The package author in no way claims any copyright on this data.
-#' @author Steven E. Pav \email{shabbychef@@gmail.com}
 #' @examples
-#' \dontrun{
 #' data(cocktails)
 #' str(cocktails)
 #'
@@ -126,11 +124,10 @@ NULL
 #' 	ungroup() %>%
 #' 	filter(isok) %>%
 #' 	arrange(desc(rating),cocktail) %>%
-#' 	select(cocktail,ingredient,amt,unit,rating)
+#' 	select(cocktail,ingredient,amt,unit,rating) %>%
+#' 	head(n=8)
 #'
-#' }
 "cocktails"
-
 
 globalVariables(c('cocktails','votes','rating','cocktail','proportion','normalize_amt','url','short_ingredient','unit',
 									'cocktail_id','coamount','amt','norm_amt',
@@ -538,7 +535,7 @@ my_server <- function(input, output, session) {
 #'
 #' @description 
 #'
-#' A shiny app to explore cocktails. The app allows you to enter ingredients
+#' A \code{shiny} app to explore cocktails. The app allows you to enter ingredients
 #' that a cocktail must have, or ingredients that it must not have. One can
 #' filter by number of ingredients, minimum rating, minimum \sQuote{t stat}
 #' (computed as the rating minus the T stat zero all multiplied by the square
@@ -560,20 +557,42 @@ my_server <- function(input, output, session) {
 #' cocktails, and by \sQuote{rho}, which is like a correlation based
 #' on the proportion.
 #'
+#' @section Screenshots:
+#'
+#' \if{html}{
+#' \figure{Screenshot-mainpage.png}{options: width="100\%" alt="Screenshot: landing page of app"}
+#' }
+#' \if{latex}{
+#' \figure{Screenshot-mainpage.png}{options: width=7cm}
+#' }
+#'
+#' \if{html}{
+#' \figure{Screenshot-ternary.png}{options: width="100\%" alt="Screenshot: ternary plot of ingredients"}
+#' }
+#' \if{latex}{
+#' \figure{Screenshot-ternary.png}{options: width=7cm}
+#' }
+#' \if{html}{
+#' \figure{Screenshot-barplot.png}{options: width="100\%" alt="Screenshot: bar plot of ingredients"}
+#' }
+#' \if{latex}{
+#' \figure{Screenshot-barplot.png}{options: width=7cm}
+#' }
+#'
 #' @usage
 #'
 #' cocktailApp()
 #'
-#' @return Runs the shiny app.
+#' @return Runs the \code{shiny} app.
 #'
 #' @keywords shiny
 #' @template etc
-#'
+#' @name cocktailApp
+#' @rdname cocktailApp
 #' @examples 
 #' \dontrun{
 #' cocktailApp()
 #' }
-#' @author Steven E. Pav \email{shabbychef@@gmail.com}
 #' @export
 cocktailApp <- function() {
 	shinyApp(ui=my_ui(), server=my_server)

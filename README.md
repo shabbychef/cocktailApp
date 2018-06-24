@@ -38,9 +38,9 @@ The app can be run in a few ways:
 
 ## Screenshots
 
-![](tools/figure/Screenshot_mainpage.png)
-![](tools/figure/Screenshot_ternary.png)
-![](tools/figure/Screenshot_barplot.png)
+![](man/figures/Screenshot-mainpage.png)
+![](man/figures/Screenshot-ternary.png)
+![](man/figures/Screenshot-barplot.png)
 
 ## Data
 

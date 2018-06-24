@@ -51,7 +51,6 @@ While, in general, raw factual data can not be copyright, there is a difference 
 The package author in no way claims any copyright on this data.
 }
 \examples{
-\dontrun{
 data(cocktails)
 str(cocktails)
 
@@ -63,11 +62,8 @@ cocktails \%>\%
 	ungroup() \%>\%
 	filter(isok) \%>\%
 	arrange(desc(rating),cocktail) \%>\%
-	select(cocktail,ingredient,amt,unit,rating)
+	select(cocktail,ingredient,amt,unit,rating) \%>\%
+	head(n=8)
 
-}
-}
-\author{
-Steven E. Pav \email{shabbychef@gmail.com}
 }
 \keyword{datasets}
