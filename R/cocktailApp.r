@@ -75,8 +75,8 @@ NULL
 
 #' @title Cocktails Data
 #' @description Ingredients of nearly 16 thousand cocktails, scraped from the web.
-#' @format A \code{data.frame} object with 77,301 rows and 12 columns. The
-#' data are scraped from three websites: Difford's guide, Webtender, and 
+#' @format A \code{data.frame} object with around 77,000 rows and 12 columns. The
+#' data were scraped from three websites: Difford's guide, Webtender, and 
 #' Kindred Cocktails, in late 2017.
 #'
 #' The columns are defined as follows:
@@ -559,24 +559,48 @@ my_server <- function(input, output, session) {
 #'
 #' @section Screenshots:
 #'
+#' The main page looks as follows. In this case the user has selected
+#' two ingredients, \sQuote{Benedictine} and \sQuote{cognac}. This
+#' populates the main table on the right. The user then selected
+#' three rows of this table, which causes the ingredients table
+#' on the lower right to be populated with the recipes of the
+#' selected cocktails. Instead one could click on the linked
+#' cocktail names to be taken to the upstream source of the recipe,
+#' which is recommended since those pages typically have better
+#' instructions.
+#'
 #' \if{html}{
 #' \figure{Screenshot-mainpage.png}{options: width="100\%" alt="Screenshot: landing page of app"}
 #' }
 #' \if{latex}{
-#' \figure{Screenshot-mainpage.png}{options: width=7cm}
+#' \figure{Screenshot-mainpage.png}{options: width=14cm}
 #' }
+#'
+#' In the following screenshot, the user has selected two ingredients,
+#' \sQuote{bourbon} and \sQuote{Averna}, then clicked on the
+#' the main table, then selected the \sQuote{plots} tab. This
+#' shows a bar plot of the proportions of all ingredients
+#' in all the selected cocktails.
+#'
+#' \if{html}{
+#' \figure{Screenshot-barplot.png}{options: width="100\%" alt="Screenshot: bar plot of ingredients"}
+#' }
+#' \if{latex}{
+#' \figure{Screenshot-barplot.png}{options: width=14cm}
+#' }
+#'
+#' In this screenshot, the user has selected two ingredients,
+#' \sQuote{Benedictine} and \sQuote{bourbon}, then clicked on the
+#' \sQuote{ternary} tab, which shows a ternary plot of the proportions
+#' of cocktails with non-zero proportions of the first two selected
+#' ingredients. The third dimension of the ternary plot is \sQuote{other}
+#' ingredients.
 #'
 #' \if{html}{
 #' \figure{Screenshot-ternary.png}{options: width="100\%" alt="Screenshot: ternary plot of ingredients"}
 #' }
 #' \if{latex}{
-#' \figure{Screenshot-ternary.png}{options: width=7cm}
-#' }
-#' \if{html}{
-#' \figure{Screenshot-barplot.png}{options: width="100\%" alt="Screenshot: bar plot of ingredients"}
-#' }
-#' \if{latex}{
-#' \figure{Screenshot-barplot.png}{options: width=7cm}
+#' \figure{Screenshot-ternary.png}{options: width=14cm}
 #' }
 #'
 #' @usage

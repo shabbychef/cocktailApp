@@ -4,8 +4,8 @@
 \name{cocktails}
 \alias{cocktails}
 \title{Cocktails Data}
-\format{A \code{data.frame} object with 77,301 rows and 12 columns. The
-data are scraped from three websites: Difford's guide, Webtender, and 
+\format{A \code{data.frame} object with around 77,000 rows and 12 columns. The
+data were scraped from three websites: Difford's guide, Webtender, and 
 Kindred Cocktails, in late 2017.
 
 The columns are defined as follows:
