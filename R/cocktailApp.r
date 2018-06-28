@@ -33,7 +33,7 @@
 #' @template etc
 #'
 #' @import shiny
-#' @importFrom dplyr mutate arrange select filter rename left_join coalesce distinct summarize everything
+#' @importFrom dplyr mutate arrange select filter rename left_join right_join coalesce distinct summarize everything ungroup
 #' @importFrom utils data
 #' @importFrom ggplot2 ggplot labs coord_flip aes geom_col geom_point geom_text guide_legend
 #' @importFrom shinythemes shinytheme
@@ -64,7 +64,7 @@ NULL
 #' \newcommand{\CRANpkg}{\href{https://cran.r-project.org/package=#1}{\pkg{#1}}}
 #' \newcommand{\cocktailApp}{\CRANpkg{cocktailApp}}
 #'
-#' @section \cocktailApp{} Initial Version 0.1.0 (2018-06-19) :
+#' @section \cocktailApp{} Initial Version 0.1.0 (2018-06-30) :
 #' \itemize{
 #' \item first CRAN release.
 #' }
@@ -129,8 +129,8 @@ NULL
 #'
 "cocktails"
 
-globalVariables(c('cocktails','votes','rating','cocktail','proportion','normalize_amt','url','short_ingredient','unit',
-									'cocktail_id','coamount','amt','norm_amt',
+globalVariables(c('cocktails','votes','rating','cocktail','proportion','url','short_ingredient','unit',
+									'cocktail_id','coamount','amt',
 									'deno','deno2','rhoval',
 									'sum_cova','n','rat','tot_ingr','tot_has_ingr','tot_am','ncocktails',
 									'tstat','page_src','tst',
@@ -247,46 +247,142 @@ applylink <- function(title,url) {
 	as.character(mapply(.applylink,title,url))
 }
 
+# add a unique ID to recipe data based on url and cocktail name
+.add_id <- function(recipe_df) {
+	# fake a distinct id
+	subs <- recipe_df %>%
+		distinct(cocktail,url) %>%
+		tibble::rowid_to_column(var='cocktail_id')
+	recipe_df %>%
+		dplyr::left_join(subs,by=c('cocktail','url'))
+}
+
+# creates information about cocktails from the recipe data frame
+.distill_info <- function(recipe_df) {
+	cocktail_df <- recipe_df %>%
+		dplyr::group_by(cocktail_id) %>%
+		dplyr::summarize(cocktail=first(cocktail),
+										 rating=dplyr::first(rating),
+										 votes=as.numeric(dplyr::first(votes)),
+										 url=dplyr::first(url),
+										 tot_ingr=sum(grepl('fl oz',unit))) %>%
+		dplyr::ungroup() %>%
+		dplyr::mutate(page_src=gsub('^http://(www.)?(.+).com/.+$','\\2',url))
+}
+
+.filter_ingredients <- function(both,name_regex,must_have_ing,must_not_have_ing,logical_sense=c('AND','OR')) {
+	logical_sense <- match.arg(logical_sense)
+
+	if (nzchar(name_regex)) {
+		match_name <- both$cocktail %>%
+			dplyr::distinct(cocktail,cocktail_id) %>%
+			dplyr::filter(grepl(pattern=name_regex,x=cocktail,ignore.case=TRUE,perl=TRUE,fixed=FALSE)) %>%
+			dplyr::distinct(cocktail_id) %>%
+			dplyr::mutate(matches_name=nzchar(name_regex))
+	} else {
+		# empty
+		match_name <- tibble::tribble(~cocktail_id,~matches_name)
+	}
+
+	new_recipe <- both$recipe %>%
+		dplyr::group_by(cocktail_id) %>%
+			dplyr::mutate(has_or_must=any(short_ingredient %in% must_have_ing),
+										has_and_must=all(must_have_ing %in% short_ingredient),
+										has_not_must=any(short_ingredient %in% must_not_have_ing)) %>%
+		dplyr::ungroup() %>%
+		dplyr::left_join(match_name,by='cocktail_id') %>%
+		dplyr::mutate(matches_name=coalesce(matches_name,FALSE)) %>%
+		dplyr::filter( (!has_not_must & ((logical_sense=='AND') | has_or_must) & ((logical_sense=='OR') | has_and_must)) | matches_name) %>%
+		dplyr::select(-has_and_must,-has_not_must,-has_or_must,-matches_name)
+	new_cocktail <- both$cocktail %>%
+		dplyr::right_join(new_recipe %>% distinct(cocktail_id),by='cocktail_id')
+
+	list(recipe=new_recipe,cocktail=new_cocktail)
+}
+
+.filter_num_ingredients <- function(both,must_have_ing,min_rating,max_ingr,max_other_ingr) {
+	tot_has <- both$recipe %>%
+		dplyr::group_by(cocktail_id) %>%
+		dplyr::summarize(tot_has_ingr=sum(short_ingredient %in% must_have_ing)) %>%
+		dplyr::ungroup() 
+
+	new_cocktail <- both$cocktail %>%
+		dplyr::filter(rating >= min_rating,
+									tot_ingr <= max_ingr) %>%
+		dplyr::left_join(tot_has,by='cocktail_id') %>%
+		dplyr::filter(tot_ingr <= max_other_ingr + tot_has_ingr) %>%
+		dplyr::select(-tot_has_ingr)
+
+	new_recipe <- both$recipe %>%
+		dplyr::right_join(new_cocktail %>% select(cocktail_id),by='cocktail_id')
+
+	list(recipe=new_recipe,cocktail=new_cocktail)
+}
+
+.filter_tstat <- function(both,min_t=2,t_zero=2.5,miss_votes=20,t_digits=2) {
+	new_cocktail <- both$cocktail %>%
+		dplyr::mutate(tstat=signif((rating - t_zero) * sqrt(coalesce(votes,miss_votes)),t_digits)) %>%
+		dplyr::filter(tstat >= min_t) 
+	new_recipe <- both$recipe %>%
+		dplyr::right_join(new_cocktail %>% select(cocktail_id),by='cocktail_id')
+
+	list(recipe=new_recipe,cocktail=new_cocktail)
+}
+.filter_src <- function(both,from_sources) {
+	new_cocktail <- both$cocktail %>%
+		dplyr::filter(page_src %in% from_sources) 
+	new_recipe <- both$recipe %>%
+		dplyr::right_join(new_cocktail %>% select(cocktail_id),by='cocktail_id')
+	list(recipe=new_recipe,cocktail=new_cocktail)
+}
+
+
+.add_description <- function(both) {
+	descdat <- both$recipe %>%
+		dplyr::filter(grepl('fl oz',unit)) %>%
+		dplyr::arrange(dplyr::desc(amt)) %>%
+		dplyr::group_by(cocktail_id) %>%
+			dplyr::summarize(description=paste0(paste0(short_ingredient,collapse=', '),'.')) %>%
+		dplyr::ungroup() 
+	new_cocktail <- both$cocktail %>%
+		dplyr::left_join(descdat,by=c('cocktail_id')) 
+	list(recipe=both$recipe,cocktail=new_cocktail)
+}
+
+# merge and arrange
+.merge_both <- function(both) {
+	both$recipe %>%
+		dplyr::left_join(both$cocktail,by='cocktail_id') %>%
+		dplyr::select(cocktail,rating,amt,unit,ingredient,everything()) %>%
+		dplyr::arrange(dplyr::desc(rating),cocktail,dplyr::desc(as.numeric(grepl('fl oz',unit))),dplyr::desc(amt))
+}
+
 # Define server logic # FOLDUP
 my_server <- function(input, output, session) {
-	just_load <- reactive({
+	get_both <- reactive({
 		#indat <- readr::read_csv('data/cocktails.csv')
 		utils::data("cocktails", package="cocktailApp")
-		indat <- cocktails
-	})
-
-	get_all <- reactive({
-		indat <- just_load() %>%
-			dplyr::mutate(votes=as.numeric(votes)) %>%
-			dplyr::mutate(tstat=signif((rating - input$t_zero) * sqrt(coalesce(votes,20)),digits=2)) %>%
-			dplyr::mutate(page_src=gsub('^http://(www.)?(.+).com/.+$','\\2',url)) 
-
+		# basically normalize the data: recipes and cocktails, 
+		# and keep them in a list
 		# fake a distinct id
-		subs <- indat %>%
-			distinct(cocktail,url) %>%
-			tibble::rowid_to_column(var='cocktail_id')
-		indat <- indat %>%
-			dplyr::left_join(subs,by=c('cocktail','url'))
-		indat
+		recipe_df <- cocktails %>%
+			.add_id()
+		cocktail_df <- recipe_df %>%
+			.distill_info()
+		list(recipe=recipe_df %>% dplyr::select(-cocktail,-rating,-votes,-url),cocktail=cocktail_df)
 	})
-	get_normalized <- reactive({
-		indat <- get_all()
-		normo <- indat %>%
-			rename(normalize_amt=proportion)
-	})
-
 	get_coingredients <- reactive({
-		normo <- get_normalized()
-		coing <- normo %>% 
-			dplyr::filter(!is.na(normalize_amt)) %>%
-			dplyr::select(short_ingredient,cocktail_id,rating,normalize_amt) %>%
+		both <- get_both()
+		coing <- both$recipe %>%
+			dplyr::filter(!is.na(proportion)) %>%
+			dplyr::select(short_ingredient,cocktail_id,rating,proportion) %>%
 			dplyr::rename(ingredient=short_ingredient) %>%
 			dplyr::mutate(rating=coalesce(rating,1)) %>%
 			dplyr::inner_join(normo %>% 
-								 dplyr::select(short_ingredient,cocktail_id,rating,normalize_amt) %>%
+								 dplyr::select(short_ingredient,cocktail_id,rating,proportion) %>%
 								 dplyr::rename(ingredient=short_ingredient) %>%
-								 dplyr::rename(coingredient=ingredient,coamount=normalize_amt),by=c('cocktail_id','rating')) %>%
-			dplyr::mutate(cova=normalize_amt * coamount) %>%
+								 dplyr::rename(coingredient=ingredient,coamount=proportion),by=c('cocktail_id','rating')) %>%
+			dplyr::mutate(cova=proportion * coamount) %>%
 			dplyr::mutate(wts=rating) %>%
 			dplyr::group_by(ingredient,coingredient) %>%
 				dplyr::summarize(sum_cova=sum(cova*wts,na.rm=TRUE),
@@ -323,95 +419,48 @@ my_server <- function(input, output, session) {
 	})
 
 	filter_ingr <- reactive({
-		normo <- get_normalized()
-		if (nzchar(input$name_regex)) {
-			match_name <- normo %>%
-				dplyr::distinct(cocktail,cocktail_id) %>%
-				dplyr::filter(grepl(pattern=input$name_regex,x=cocktail,ignore.case=TRUE,
-										 perl=TRUE,fixed=FALSE)) %>%
-				dplyr::distinct(cocktail_id) %>%
-				dplyr::mutate(matches_name=nzchar(input$name_regex))
-		} else {
-			# empty
-			match_name <- tibble::tribble(~cocktail_id,~matches_name)
-		}
-
-		otdat <- normo %>%
-			dplyr::group_by(cocktail_id) %>%
-				dplyr::mutate(has_or_must=any(short_ingredient %in% input$must_have_ing),
-							 has_and_must=all(input$must_have_ing %in% short_ingredient),
-							 has_not_must=any(short_ingredient %in% input$must_not_have_ing)) %>%
-			dplyr::ungroup() %>%
-			dplyr::left_join(match_name,by='cocktail_id') %>%
-			dplyr::mutate(matches_name=coalesce(matches_name,FALSE)) %>%
-			dplyr::filter( (!has_not_must & ((input$logical_sense=='AND') | has_or_must) & ((input$logical_sense=='OR') | has_and_must)) |
-						 matches_name) %>%
-			dplyr::select(-has_and_must,-has_not_must,-has_or_must,-matches_name)
-		otdat
+		.filter_ingredients(both=get_both(),name_regex=input$name_regex,
+												must_have_ing=input$must_have_ing,
+												must_not_have_ing=input$must_not_have_ing,
+												logical_sense=input$logical_sense)
 	})
-
-
 	filter_num_ingr <- reactive({
-		indat <- filter_ingr()
-		rdat <- indat %>%
-			dplyr::group_by(cocktail_id) %>%
-				dplyr::summarize(rat=dplyr::first(rating),
-									tst=dplyr::first(tstat),
-									tot_ingr=sum(grepl('fl oz',unit)),
-									tot_has_ingr=sum(short_ingredient %in% input$must_have_ing)) %>%
-			dplyr::ungroup() %>%
-			dplyr::filter(rat >= input$min_rating,
-						 tst >= input$min_tstat,
-						 tot_ingr <= input$max_ingr,
-						 tot_ingr <= input$max_other_ingr + tot_has_ingr) %>%
-			distinct(cocktail_id)
+		.filter_num_ingredients(both=filter_ingr(),must_have_ing=input$must_have_ing,
+														min_rating=input$min_rating,max_ingr=input$max_ingr,
+														max_other_ingr=input$max_other_ingr)
 
-		otdat <- indat %>%
-			dplyr::inner_join(rdat %>% dplyr::select(cocktail_id),by=c('cocktail_id'))
-		otdat
+	})
+	filter_tstat <- reactive({
+		.filter_tstat(both=filter_num_ingr(),min_t=input$min_tstat,t_zero=input$t_zero)
 	})
 	filter_src <- reactive({
-		otdat <- filter_num_ingr() %>%
-			dplyr::filter(page_src %in% input$from_sources) %>% 
-			dplyr::select(cocktail,rating,amt,unit,ingredient,everything()) %>%
-			dplyr::arrange(dplyr::desc(rating),cocktail,dplyr::desc(as.numeric(grepl('fl oz',unit))),dplyr::desc(amt))
+		.filter_src(both=filter_tstat(),from_sources=input$from_sources)
 	})
-	
-	filtered_cocktails <- reactive({
-		otdat <- filter_src() %>%
-			dplyr::select(-page_src) 
-
-		descdat <- otdat %>%
-			dplyr::filter(grepl('fl oz',unit)) %>%
-			dplyr::arrange(dplyr::desc(amt)) %>%
-			dplyr::group_by(cocktail_id) %>%
-				summarize(description=paste0(paste0(short_ingredient,collapse=', '),'.')) %>%
-			dplyr::ungroup() 
-
-		drinks <- otdat %>%
-			dplyr::distinct(cocktail_id,cocktail,url,rating,tstat) %>%
-			dplyr::left_join(descdat,by=c('cocktail_id')) 
-
-		ingredients <- otdat %>%
-			dplyr::select(cocktail_id,cocktail,amt,unit,ingredient)
-
-		list(drinks=drinks,ingredients=ingredients)
+	final_both <- reactive({
+		.add_description(both=filter_src())
+	})
+	final_merged <- reactive({
+		.merge_both(both=final_both())
 	})
 
+	# if the user selects any drinks from the table, 
+	# take their ingredients
 	selected_drinks <- reactive({
-		selco <- filtered_cocktails()
-		drinks <- selco$drinks
+		both <- final_both()
+		drinks <- both$cocktail 
+
 		selrows <- input$drinks_table_rows_selected
-		otdat <- selco$ingredients %>%
+		otdat <- both$recipe %>%
 			dplyr::inner_join(drinks[selrows,] %>% 
-								 dplyr::select(cocktail_id,rating),by='cocktail_id')
+												dplyr::select(cocktail_id,cocktail,rating),by='cocktail_id')
 		otdat
 	})
 
 	# table of comparables #FOLDUP
 	output$drinks_table <- DT::renderDataTable({
-		selco <- filtered_cocktails()
-		otdat <- selco$drinks %>%
+		both <- final_both()
+		shiny::validate(shiny::need('cocktail' %in% colnames(both$cocktail),'where is it?'))
+		otdat <- both$cocktail %>%
 			dplyr::mutate(cocktail=applylink(cocktail,url)) %>%
 			select(rating,tstat,cocktail,description)
 
@@ -451,24 +500,14 @@ my_server <- function(input, output, session) {
 	server=TRUE)#UNFOLD
 
 	output$selected_ingredients_bar_plot <- renderPlot({
-		#flist <- filtered_cocktails()
-		#plotdat <- flist$ingredients %>%
-			#dplyr::filter(grepl('fl oz',unit)) %>%
-			#dplyr::group_by(cocktail) %>% 
-				#dplyr::mutate(norm_amt=amt / sum(amt,na.rm=TRUE)) %>%
-			#dplyr::ungroup() 
-			##arrange(desc(rating))
 		plotdat <- selected_drinks() %>%
 			dplyr::filter(grepl('fl oz',unit)) %>%
-			dplyr::group_by(cocktail_id) %>% 
-				dplyr::mutate(norm_amt=amt / sum(amt,na.rm=TRUE)) %>%
-			dplyr::ungroup() %>%
 			dplyr::arrange(dplyr::desc(rating))
 
 			#facet_grid(.~rating) + 
 		ph <- plotdat %>%
-			dplyr::mutate(pct_amt=100*norm_amt) %>%
-			ggplot(aes(ingredient,norm_amt,fill=cocktail)) + 
+			mutate(pct_amt=100*proportion) %>%
+			ggplot(aes(ingredient,pct_amt,fill=cocktail)) + 
 			geom_col(position='dodge') + 
 			coord_flip() +
 			labs(y='amount (%)',
@@ -477,6 +516,7 @@ my_server <- function(input, output, session) {
 		ph
 	})
 	output$ingredients_table <- renderTable({
+		#	may have to select down some more.
 		otdat <- selected_drinks() %>%
 			select(-cocktail_id,-rating)
 	},striped=TRUE,width='100%')
@@ -485,19 +525,20 @@ my_server <- function(input, output, session) {
 		shiny::validate(shiny::need(length(input$must_have_ing) > 1,'Must select 2 or more must have ingredients.'))
 		preing <- input$must_have_ing[1:2]
 
-		otdat <- filter_src()
+		otdat <- final_merged()
+		shiny::validate(shiny::need('cocktail' %in% colnames(otdat),'where is it otdat?'))
 
 		blah <- otdat %>%
 			dplyr::filter(unit=='fl oz') %>%
 			dplyr::filter(short_ingredient %in% preing) %>%
-			dplyr::select(short_ingredient,page_src,cocktail,rating,cocktail_id,normalize_amt) %>%
+			dplyr::select(short_ingredient,page_src,cocktail,rating,cocktail_id,proportion) %>%
 			dplyr::group_by(cocktail_id,cocktail,page_src,rating,short_ingredient) %>%
-				dplyr::summarize(tot_amt=sum(normalize_amt,na.rm=TRUE)) %>%
+				dplyr::summarize(tot_amt=sum(proportion,na.rm=TRUE)) %>%
 			dplyr::ungroup() %>%
-			dplyr::rename(normalize_amt=tot_amt) %>%
+			dplyr::rename(proportion=tot_amt) %>%
 			dplyr::group_by(cocktail_id) %>%
-				dplyr::mutate(has_both=length(normalize_amt) > 1,
-											Other=1 - sum(normalize_amt)) %>%
+				dplyr::mutate(has_both=length(proportion) > 1,
+											Other=1 - sum(proportion)) %>%
 			dplyr::ungroup() %>%
 			dplyr::filter(has_both) 
 
@@ -505,7 +546,7 @@ my_server <- function(input, output, session) {
 		. <- NULL
 		shiny::validate(shiny::need(nrow(blah) > 0,'No cocktails have those two ingredients. Try again.'))
 		blah <- blah %>%
-			tidyr::spread(key=short_ingredient,value=normalize_amt,fill=0) %>%
+			tidyr::spread(key=short_ingredient,value=proportion,fill=0) %>%
 			setNames(gsub('\\s','_',names(.)))
 
 		ing <- gsub('\\s','_',preing)
