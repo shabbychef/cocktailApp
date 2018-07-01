@@ -11,9 +11,15 @@ r:
   - release
   - devel
 
+r_github_packages :
+  - jimhester/covr
+
 warnings_are_errors : true
 
 r_build_args : " --compact-vignettes=gs+qpdf"
+
+after_success:
+  - Rscript -e 'library(covr);codecov()'
 
 notifications:
   email:
