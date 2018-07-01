@@ -64,7 +64,7 @@ NULL
 #' \newcommand{\CRANpkg}{\href{https://cran.r-project.org/package=#1}{\pkg{#1}}}
 #' \newcommand{\cocktailApp}{\CRANpkg{cocktailApp}}
 #'
-#' @section \cocktailApp{} Initial Version 0.1.0 (2018-06-30) :
+#' @section \cocktailApp{} Initial Version 0.1.0 (2018-07-02) :
 #' \itemize{
 #' \item first CRAN release.
 #' }
@@ -141,7 +141,7 @@ globalVariables(c('cocktails','votes','rating','cocktail','proportion','url','sh
 
 
 # Define UI for ...
-my_ui <- function(){
+my_ui <- function(page_title='Drink Schnauzer') {
 	utils::data("cocktails", package="cocktailApp")
 	indat <- cocktails
 
@@ -169,6 +169,12 @@ my_ui <- function(){
 		dplyr::distinct(url)
 	all_source <- unique(sources$url)
 
+	if (!is.null(page_title)) {
+		tp_bits <- titlePanel("Drink Schnauzer")
+	} else {
+		tp_bits <- tagList()
+	}
+
 # Define UI for ...
 	shinyUI(
 		fluidPage(theme=shinytheme("spacelab"),#FOLDUP
@@ -182,13 +188,12 @@ my_ui <- function(){
 						tags$style(".table .alignRight {color: black; text-align:right;}"),
 						tags$link(rel="stylesheet", type="text/css", href="style.css")
 			),
-			titlePanel("Drink Schnauzer"),
+			tp_bits,
 			# tags$img(id = "logoimg", src = "logo.png", width = "200px"),
 			sidebarLayout(#FOLDUP
 				position="left",
 			sidebarPanel(#FOLDUP
 				width=2,
-				h3('Parameters'),
 				selectInput("must_have_ing","Must Have:",choices=ingr,selected=c(),multiple=TRUE),
 				selectInput("logical_sense","Join by:",choices=c('OR','AND'),selected='OR',multiple=FALSE),
 				selectInput("must_not_have_ing","Must Not Have:",choices=ingr,selected=c(),multiple=TRUE),
@@ -357,6 +362,68 @@ applylink <- function(title,url) {
 		dplyr::arrange(dplyr::desc(rating),cocktail,dplyr::desc(as.numeric(grepl('fl oz',unit))),dplyr::desc(amt))
 }
 
+# from the recipe_df, compute co-ingredients table.
+.coingredients <- function(recipe_df) {
+	sub_df <- recipe_df %>%
+		dplyr::select(short_ingredient,cocktail_id,rating,proportion) 
+	coing <- sub_df %>%
+		dplyr::filter(!is.na(proportion)) %>%
+		dplyr::mutate(rating=coalesce(rating,1)) %>%
+		dplyr::inner_join(sub_df %>%
+							 dplyr::rename(coingredient=short_ingredient,coamount=proportion),by=c('cocktail_id','rating')) %>%
+		dplyr::mutate(cova=proportion * coamount) %>%
+		dplyr::mutate(wts=rating) %>%
+		dplyr::group_by(short_ingredient,coingredient) %>%
+			dplyr::summarize(sum_cova=sum(cova*wts,na.rm=TRUE),
+								sum_wts=sum(wts,na.rm=TRUE),
+								ncocktails=n()) %>%
+		dplyr::ungroup() %>%
+		dplyr::arrange(dplyr::desc(ncocktails))
+}
+
+.ingredient_rho <- function(recipe_df) {
+	coing <- .coingredients(recipe_df) 
+	diagv <- coing %>%
+		dplyr::filter(short_ingredient==coingredient) %>%
+		dplyr::mutate(deno=sqrt(sum_cova))
+
+	rhov <- coing %>%
+		dplyr::left_join(diagv %>% select(short_ingredient,deno),by='short_ingredient') %>%
+		dplyr::left_join(diagv %>% select(coingredient,deno) %>% rename(deno2=deno),by='coingredient') %>%
+		dplyr::mutate(rhoval=sum_cova / (deno * deno2)) %>%
+		dplyr::filter(!is.na(rhoval)) %>% 
+		dplyr::select(short_ingredient,coingredient,ncocktails,rhoval) %>%
+		dplyr::filter(ncocktails > 2) %>%
+		dplyr::arrange(dplyr::desc(rhoval))
+}
+
+.prepare_ternary <- function(both,two_ing) {
+	stopifnot(length(two_ing) > 1)
+	stopifnot(all(c('cocktail_id','cocktail','rating','page_src') %in% colnames(both$cocktail)))
+	stopifnot(all(c('cocktail_id','unit','short_ingredient','proportion') %in% colnames(both$recipe)))
+
+	bycols <- both$recipe %>%
+		dplyr::filter(unit=='fl oz',
+									short_ingredient %in% two_ing) %>%
+		dplyr::group_by(cocktail_id,short_ingredient) %>%
+			dplyr::summarize(tot_amt=sum(proportion,na.rm=TRUE)) %>%
+		dplyr::ungroup() %>%
+		dplyr::rename(proportion=tot_amt) %>%
+		dplyr::group_by(cocktail_id) %>%
+			dplyr::mutate(has_both=length(proportion) > 1,
+										Other=1 - sum(proportion)) %>%
+		dplyr::ungroup() %>%
+		dplyr::filter(has_both) 
+
+	# fun! get CRAN checks to shut up.
+	. <- NULL
+	retv <- bycols %>%
+		tidyr::spread(key=short_ingredient,value=proportion,fill=0) %>%
+		setNames(gsub('\\s','_',names(.))) %>%
+		dplyr::left_join(both$cocktail %>% select(cocktail_id,cocktail,rating,page_src),by='cocktail_id')
+}
+
+
 # Define server logic # FOLDUP
 my_server <- function(input, output, session) {
 	get_both <- reactive({
@@ -372,45 +439,20 @@ my_server <- function(input, output, session) {
 		list(recipe=recipe_df %>% dplyr::select(-cocktail,-rating,-votes,-url),cocktail=cocktail_df)
 	})
 	get_coingredients <- reactive({
-		both <- get_both()
-		coing <- both$recipe %>%
-			dplyr::filter(!is.na(proportion)) %>%
-			dplyr::select(short_ingredient,cocktail_id,rating,proportion) %>%
-			dplyr::rename(ingredient=short_ingredient) %>%
-			dplyr::mutate(rating=coalesce(rating,1)) %>%
-			dplyr::inner_join(normo %>% 
-								 dplyr::select(short_ingredient,cocktail_id,rating,proportion) %>%
-								 dplyr::rename(ingredient=short_ingredient) %>%
-								 dplyr::rename(coingredient=ingredient,coamount=proportion),by=c('cocktail_id','rating')) %>%
-			dplyr::mutate(cova=proportion * coamount) %>%
-			dplyr::mutate(wts=rating) %>%
-			dplyr::group_by(ingredient,coingredient) %>%
-				dplyr::summarize(sum_cova=sum(cova*wts,na.rm=TRUE),
-									sum_wts=sum(wts,na.rm=TRUE),
-									ncocktails=n()) %>%
-			dplyr::ungroup() %>%
-			dplyr::arrange(dplyr::desc(ncocktails))
+		coing <- .coingredients(both$recipe)
 	})
 	# like a covariance of ingredients
 	get_ing_rho <- reactive({
-		coing <- get_coingredients()
-		
-		diagv <- coing %>%
-			dplyr::filter(ingredient==coingredient) %>%
-			dplyr::mutate(deno=sqrt(sum_cova))
-
-		rhov <- coing %>%
-			dplyr::left_join(diagv %>% select(ingredient,deno),by='ingredient') %>%
-			dplyr::left_join(diagv %>% select(coingredient,deno) %>% rename(deno2=deno),by='coingredient') %>%
-			dplyr::mutate(rhoval=sum_cova / (deno * deno2)) %>%
-			dplyr::filter(!is.na(rhoval)) %>% 
-			dplyr::select(ingredient,coingredient,ncocktails,rhoval) %>%
-			dplyr::filter(ncocktails > 2) %>%
-			dplyr::arrange(dplyr::desc(rhoval))
+		both <- get_both()
+		# add rating
+		recipe_df <- both$recipe %>%
+			left_join(both$cocktail,by='cocktail_id')
+		rhov <- .ingredient_rho(recipe_df)
 	})
-
 	suggested_ingr <- reactive({
-		rhov <- get_ing_rho()
+		rhov <- get_ing_rho() %>%
+			rename(ingredient=short_ingredient)
+
 		rhov %>%
 			dplyr::filter(ingredient %in% input$must_have_ing) %>%
 			dplyr::filter(ingredient != coingredient) %>%
@@ -524,34 +566,12 @@ my_server <- function(input, output, session) {
 	output$selected_ingredients_tern_plot <- renderPlot({
 		shiny::validate(shiny::need(length(input$must_have_ing) > 1,'Must select 2 or more must have ingredients.'))
 		preing <- input$must_have_ing[1:2]
-
-		otdat <- final_merged()
-		shiny::validate(shiny::need('cocktail' %in% colnames(otdat),'where is it otdat?'))
-
-		blah <- otdat %>%
-			dplyr::filter(unit=='fl oz') %>%
-			dplyr::filter(short_ingredient %in% preing) %>%
-			dplyr::select(short_ingredient,page_src,cocktail,rating,cocktail_id,proportion) %>%
-			dplyr::group_by(cocktail_id,cocktail,page_src,rating,short_ingredient) %>%
-				dplyr::summarize(tot_amt=sum(proportion,na.rm=TRUE)) %>%
-			dplyr::ungroup() %>%
-			dplyr::rename(proportion=tot_amt) %>%
-			dplyr::group_by(cocktail_id) %>%
-				dplyr::mutate(has_both=length(proportion) > 1,
-											Other=1 - sum(proportion)) %>%
-			dplyr::ungroup() %>%
-			dplyr::filter(has_both) 
-
-		# fun! get CRAN checks to shut up.
-		. <- NULL
-		shiny::validate(shiny::need(nrow(blah) > 0,'No cocktails have those two ingredients. Try again.'))
-		blah <- blah %>%
-			tidyr::spread(key=short_ingredient,value=proportion,fill=0) %>%
-			setNames(gsub('\\s','_',names(.)))
-
 		ing <- gsub('\\s','_',preing)
 
-		ph <- blah %>%
+		ptern <- .prepare_ternary(both=final_both(),two_ing=preing)
+		shiny::validate(shiny::need(nrow(ptern) > 0,paste('No cocktails found with both',preing[1],'and',preing[2])))
+
+		ph <- ptern %>%
 				ggtern::ggtern(ggplot2::aes_string(x=ing[1],y=ing[2],z='Other',
 																					 shape='page_src',label='cocktail',color='rating')) +
 				ggplot2::geom_point(aes(size=rating),alpha=0.5) +
