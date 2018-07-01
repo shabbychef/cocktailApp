@@ -34,6 +34,8 @@ dnl readr,
 dnl    urltools,
 dnl    stringr
     DT
+Suggests: 
+    testthat
 URL: https://github.com/shabbychef/PKG_NAME()
 dnl VignetteBuilder: knitr
 Collate:
