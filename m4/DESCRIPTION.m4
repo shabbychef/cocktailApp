@@ -35,7 +35,8 @@ dnl    urltools,
 dnl    stringr
     DT
 Suggests: 
-    testthat
+    testthat,
+    shinytest
 URL: https://github.com/shabbychef/PKG_NAME()
 dnl VignetteBuilder: knitr
 Collate:
