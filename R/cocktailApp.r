@@ -136,6 +136,7 @@ globalVariables(c('cocktails','votes','rating','cocktail','proportion','url','sh
 									'tstat','page_src','tst',
 									'has_or_must','has_and_must','has_not_must',
 									'matches_name','ingr_class','description',
+									'pct_amt',
 									'tot_amt','has_both','Other',
 									'ingredient','coingredient','cova','wts'))
 
