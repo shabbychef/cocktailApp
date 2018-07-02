@@ -4,7 +4,11 @@
 \alias{cocktailApp}
 \title{cocktailApp .}
 \usage{
-cocktailApp()
+cocktailApp(page_title = "Drink Schnauzer")
+}
+\arguments{
+\item{page_title}{an optional page title for the app. A \code{NULL} value
+causes no page title to be used.}
 }
 \value{
 Runs the \code{shiny} app.
