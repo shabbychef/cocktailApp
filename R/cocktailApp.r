@@ -257,7 +257,7 @@ applylink <- function(title,url) {
 .add_id <- function(recipe_df) {
 	# fake a distinct id
 	subs <- recipe_df %>%
-		distinct(cocktail,url) %>%
+		dplyr::distinct(cocktail,url) %>%
 		tibble::rowid_to_column(var='cocktail_id')
 	recipe_df %>%
 		dplyr::left_join(subs,by=c('cocktail','url'))
@@ -315,7 +315,7 @@ applylink <- function(title,url) {
 		dplyr::filter( (!has_not_must & ((logical_sense=='AND') | has_or_must) & ((logical_sense=='OR') | has_and_must)) | matches_name) %>%
 		dplyr::select(-has_and_must,-has_not_must,-has_or_must,-matches_name)
 	new_cocktail <- both$cocktail %>%
-		dplyr::right_join(new_recipe %>% distinct(cocktail_id),by='cocktail_id')
+		dplyr::right_join(new_recipe %>% dplyr::distinct(cocktail_id),by='cocktail_id')
 
 	list(recipe=new_recipe,cocktail=new_cocktail)
 }
@@ -665,12 +665,11 @@ my_server <- function(input, output, session) {
 #' \figure{Screenshot-ternary.png}{options: width=14cm}
 #' }
 #'
-#' @usage
-#'
-#' cocktailApp()
 #'
 #' @return Runs the \code{shiny} app.
 #'
+#' @param page_title  an optional page title for the app. A \code{NULL} value
+#' causes no page title to be used.
 #' @keywords shiny
 #' @template etc
 #' @name cocktailApp
@@ -680,8 +679,8 @@ my_server <- function(input, output, session) {
 #' cocktailApp()
 #' }
 #' @export
-cocktailApp <- function() {
-	shinyApp(ui=my_ui(), server=my_server)
+cocktailApp <- function(page_title='Drink Schnauzer') {
+	shinyApp(ui=my_ui(page_title=page_title), server=my_server)
 }
 # importFrom DT dataTableOutput renderDataTable datatable 
 
