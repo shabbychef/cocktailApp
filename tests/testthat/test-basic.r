@@ -57,10 +57,13 @@ test_that("shiny bits",{#FOLDUP
 	both6 <- .add_description(both5)
 	merged <- .merge_both(both6)
 
+	ph <- .make_bar_plot(merged)
+
 	rhov1 <- .coingredients(recipe_df)
 	rhov2 <- .ingredient_rho(recipe_df)
 
 	ptern <- .prepare_ternary(both3,two_ing=two_ing)
+	.make_tern_plot(ptern,two_ing)
 
 	# sentinel
 	expect_true(TRUE)
