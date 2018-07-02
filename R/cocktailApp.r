@@ -377,6 +377,12 @@ applylink <- function(title,url) {
 		dplyr::arrange(dplyr::desc(rating),cocktail,dplyr::desc(as.numeric(grepl('fl oz',unit))),dplyr::desc(amt))
 }
 
+.drinks_table <- function(both) {
+	otdat <- both$cocktail %>%
+		dplyr::mutate(cocktail=applylink(cocktail,url)) %>%
+		dplyr::select(rating,tstat,cocktail,description)
+}
+
 # from the recipe_df, compute co-ingredients table.
 .coingredients <- function(recipe_df) {
 	sub_df <- recipe_df %>%
@@ -526,22 +532,15 @@ my_server <- function(input, output, session) {
 
 	# table of comparables #FOLDUP
 	output$drinks_table <- DT::renderDataTable({
-		both <- final_both()
-		shiny::validate(shiny::need('cocktail' %in% colnames(both$cocktail),'where is it?'))
-		otdat <- both$cocktail %>%
-			dplyr::mutate(cocktail=applylink(cocktail,url)) %>%
-			select(rating,tstat,cocktail,description)
-
+		otdat <- .drinks_table(both=final_both())
 		# for this javascript shiznit, recall that javascript starts
 		# counting at zero!
 		#
 		# cf 
 		# col rendering: http://rstudio.github.io/DT/options.html
 		# https://github.com/jcheng5/shiny-jsdemo/blob/master/ui.r
-		DT::datatable(otdat,
-									caption='Matching cocktails. Click on a row to populate the ingredients table below.',
-									escape=FALSE,
-									rownames=FALSE,
+		DT::datatable(otdat,caption='Matching cocktails. Click on a row to populate the ingredients table below.',
+									escape=FALSE,rownames=FALSE,
 									options=list(order=list(list(1,'desc'),list(0,'desc'),list(2,'asc')),
 															 paging=TRUE,
 															 pageLength=15))
@@ -566,9 +565,7 @@ my_server <- function(input, output, session) {
 	server=TRUE)#UNFOLD
 
 	output$selected_ingredients_bar_plot <- renderPlot({
-		ph <- selected_drinks() %>%
-			.make_bar_plot()
-		ph
+		selected_drinks() %>% .make_bar_plot()
 	})
 	output$ingredients_table <- renderTable({
 		#	may have to select down some more.
