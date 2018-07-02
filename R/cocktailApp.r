@@ -565,7 +565,8 @@ my_server <- function(input, output, session) {
 	server=TRUE)#UNFOLD
 
 	output$selected_ingredients_bar_plot <- renderPlot({
-		selected_drinks() %>% .make_bar_plot()
+		ph <- selected_drinks() %>% .make_bar_plot()
+		ph
 	})
 	output$ingredients_table <- renderTable({
 		#	may have to select down some more.
@@ -578,7 +579,7 @@ my_server <- function(input, output, session) {
 
 		tern_df <- .prepare_ternary(both=final_both(),two_ing=preing)
 		shiny::validate(shiny::need(nrow(tern_df) > 0,paste('No cocktails found with both',preing[1],'and',preing[2])))
-		ph <- .make_tern_plot(tern_df)
+		ph <- .make_tern_plot(tern_df,preing=preing)
 
 		# see https://github.com/rstudio/shiny/issues/915
 		print(ph)
