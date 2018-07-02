@@ -68,6 +68,14 @@ test_that("shiny bits",{#FOLDUP
 	# sentinel
 	expect_true(TRUE)
 })#UNFOLD
+test_that("call the app?",{#FOLDUP
+	# travis only?
+	#skip_on_cran()
+	blah <- cocktailApp()
+
+	# sentinel
+	expect_true(TRUE)
+})#UNFOLD
 # 2FIX: check the effects of NA
 #UNFOLD
 
