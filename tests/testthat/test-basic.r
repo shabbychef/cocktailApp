@@ -46,7 +46,7 @@ test_that("shiny bits",{#FOLDUP
 
 	both <- list(recipe=recipe_df %>% dplyr::select(-cocktail,-rating,-votes,-url),cocktail=cocktail_df)
 	# another way to get the same thing
-	altboth <- .gen_both()
+	#altboth <- .gen_both()
 
 	both2 <- .filter_ingredients(both,name_regex='',must_have_ing=c('Bourbon','Averna'),
 															 must_not_have_ing=c(),
