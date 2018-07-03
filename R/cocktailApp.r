@@ -276,14 +276,15 @@ applylink <- function(title,url) {
 		dplyr::mutate(page_src=gsub('^http://(www.)?(.+).com/.+$','\\2',url))
 }
 
-.gen_both <- function(cocktails=NULL) {
-	if (is.null(cocktails)) {
-			utils::data("cocktails", package="cocktailApp")
+.gen_both <- function(raw_dat=NULL) {
+	if (missing(raw_dat) || is.null(raw_dat)) {
+		utils::data("cocktails", package="cocktailApp")
+		raw_dat <- cocktails
 	}
 	# basically normalize the data: recipes and cocktails, 
 	# and keep them in a list
 	# fake a distinct id
-	recipe_df <- cocktails %>%
+	recipe_df <- raw_dat %>%
 		.add_id()
 	cocktail_df <- recipe_df %>%
 		.distill_info()
