@@ -33,7 +33,7 @@
 #' @template etc
 #'
 #' @import shiny
-#' @importFrom dplyr mutate arrange select filter rename left_join right_join coalesce distinct summarize everything ungroup
+#' @importFrom dplyr mutate arrange select filter rename left_join right_join coalesce distinct summarize everything ungroup first
 #' @importFrom utils data
 #' @importFrom ggplot2 ggplot labs coord_flip aes geom_col geom_point geom_text guide_legend
 #' @importFrom shinythemes shinytheme
@@ -136,6 +136,7 @@ globalVariables(c('cocktails','votes','rating','cocktail','proportion','url','sh
 									'tstat','page_src','tst',
 									'has_or_must','has_and_must','has_not_must',
 									'matches_name','ingr_class','description',
+									'pct_amt',
 									'tot_amt','has_both','Other',
 									'ingredient','coingredient','cova','wts'))
 
@@ -256,7 +257,7 @@ applylink <- function(title,url) {
 .add_id <- function(recipe_df) {
 	# fake a distinct id
 	subs <- recipe_df %>%
-		distinct(cocktail,url) %>%
+		dplyr::distinct(cocktail,url) %>%
 		tibble::rowid_to_column(var='cocktail_id')
 	recipe_df %>%
 		dplyr::left_join(subs,by=c('cocktail','url'))
@@ -266,13 +267,28 @@ applylink <- function(title,url) {
 .distill_info <- function(recipe_df) {
 	cocktail_df <- recipe_df %>%
 		dplyr::group_by(cocktail_id) %>%
-		dplyr::summarize(cocktail=first(cocktail),
+		dplyr::summarize(cocktail=dplyr::first(cocktail),
 										 rating=dplyr::first(rating),
 										 votes=as.numeric(dplyr::first(votes)),
 										 url=dplyr::first(url),
 										 tot_ingr=sum(grepl('fl oz',unit))) %>%
 		dplyr::ungroup() %>%
 		dplyr::mutate(page_src=gsub('^http://(www.)?(.+).com/.+$','\\2',url))
+}
+
+.gen_both <- function(raw_dat=NULL) {
+	if (missing(raw_dat) || is.null(raw_dat)) {
+		utils::data("cocktails", package="cocktailApp")
+		raw_dat <- cocktails
+	}
+	# basically normalize the data: recipes and cocktails, 
+	# and keep them in a list
+	# fake a distinct id
+	recipe_df <- raw_dat %>%
+		.add_id()
+	cocktail_df <- recipe_df %>%
+		.distill_info()
+	list(recipe=recipe_df %>% dplyr::select(-cocktail,-rating,-votes,-url),cocktail=cocktail_df)
 }
 
 .filter_ingredients <- function(both,name_regex,must_have_ing,must_not_have_ing,logical_sense=c('AND','OR')) {
@@ -300,7 +316,7 @@ applylink <- function(title,url) {
 		dplyr::filter( (!has_not_must & ((logical_sense=='AND') | has_or_must) & ((logical_sense=='OR') | has_and_must)) | matches_name) %>%
 		dplyr::select(-has_and_must,-has_not_must,-has_or_must,-matches_name)
 	new_cocktail <- both$cocktail %>%
-		dplyr::right_join(new_recipe %>% distinct(cocktail_id),by='cocktail_id')
+		dplyr::right_join(new_recipe %>% dplyr::distinct(cocktail_id),by='cocktail_id')
 
 	list(recipe=new_recipe,cocktail=new_cocktail)
 }
@@ -360,6 +376,12 @@ applylink <- function(title,url) {
 		dplyr::left_join(both$cocktail,by='cocktail_id') %>%
 		dplyr::select(cocktail,rating,amt,unit,ingredient,everything()) %>%
 		dplyr::arrange(dplyr::desc(rating),cocktail,dplyr::desc(as.numeric(grepl('fl oz',unit))),dplyr::desc(amt))
+}
+
+.drinks_table <- function(both) {
+	otdat <- both$cocktail %>%
+		dplyr::mutate(cocktail=applylink(cocktail,url)) %>%
+		dplyr::select(rating,tstat,cocktail,description)
 }
 
 # from the recipe_df, compute co-ingredients table.
@@ -423,23 +445,38 @@ applylink <- function(title,url) {
 		dplyr::left_join(both$cocktail %>% select(cocktail_id,cocktail,rating,page_src),by='cocktail_id')
 }
 
+.make_bar_plot <- function(both_df) {
+	#facet_grid(.~rating) + 
+	ph <- both_df %>%
+		dplyr::filter(grepl('fl oz',unit)) %>%
+		dplyr::arrange(dplyr::desc(rating)) %>%
+		mutate(pct_amt=100*proportion) %>%
+		ggplot(aes(ingredient,pct_amt,fill=cocktail)) + 
+		geom_col(position='dodge') + 
+		coord_flip() +
+		labs(y='amount (%)',
+				 x='ingredient',
+				 title='selected drinks')
+}
+
+.make_tern_plot <- function(tern_df,preing) {
+	ing <- gsub('\\s','_',preing)
+	ph <- tern_df %>%
+		ggtern::ggtern(ggplot2::aes_string(x=ing[1],y=ing[2],z='Other',
+																			 shape='page_src',label='cocktail',color='rating')) +
+		ggplot2::geom_point(aes(size=rating),alpha=0.5) +
+		ggtern::Llab(preing[1]) + ggtern::Tlab(preing[2]) + 
+		ggplot2::geom_text(hjust='inward',vjust='inward') +
+		ggplot2::guides(shape=guide_legend(title='source'))
+	ph
+}
+
 
 # Define server logic # FOLDUP
 my_server <- function(input, output, session) {
 	get_both <- reactive({
-		#indat <- readr::read_csv('data/cocktails.csv')
 		utils::data("cocktails", package="cocktailApp")
-		# basically normalize the data: recipes and cocktails, 
-		# and keep them in a list
-		# fake a distinct id
-		recipe_df <- cocktails %>%
-			.add_id()
-		cocktail_df <- recipe_df %>%
-			.distill_info()
-		list(recipe=recipe_df %>% dplyr::select(-cocktail,-rating,-votes,-url),cocktail=cocktail_df)
-	})
-	get_coingredients <- reactive({
-		coing <- .coingredients(both$recipe)
+		both <- .gen_both(cocktails)
 	})
 	# like a covariance of ingredients
 	get_ing_rho <- reactive({
@@ -450,13 +487,9 @@ my_server <- function(input, output, session) {
 		rhov <- .ingredient_rho(recipe_df)
 	})
 	suggested_ingr <- reactive({
-		rhov <- get_ing_rho() %>%
-			rename(ingredient=short_ingredient)
-
-		rhov %>%
-			dplyr::filter(ingredient %in% input$must_have_ing) %>%
-			dplyr::filter(ingredient != coingredient) %>%
-			dplyr::filter(ncocktails > 5) %>%
+		retv <- get_ing_rho() %>%
+			rename(ingredient=short_ingredient) %>%
+			dplyr::filter(ingredient %in% input$must_have_ing,ingredient != coingredient,ncocktails > 5) %>%
 			dplyr::arrange(dplyr::desc(rhoval))
 	})
 
@@ -500,22 +533,15 @@ my_server <- function(input, output, session) {
 
 	# table of comparables #FOLDUP
 	output$drinks_table <- DT::renderDataTable({
-		both <- final_both()
-		shiny::validate(shiny::need('cocktail' %in% colnames(both$cocktail),'where is it?'))
-		otdat <- both$cocktail %>%
-			dplyr::mutate(cocktail=applylink(cocktail,url)) %>%
-			select(rating,tstat,cocktail,description)
-
+		otdat <- .drinks_table(both=final_both())
 		# for this javascript shiznit, recall that javascript starts
 		# counting at zero!
 		#
 		# cf 
 		# col rendering: http://rstudio.github.io/DT/options.html
 		# https://github.com/jcheng5/shiny-jsdemo/blob/master/ui.r
-		DT::datatable(otdat,
-									caption='Matching cocktails. Click on a row to populate the ingredients table below.',
-									escape=FALSE,
-									rownames=FALSE,
+		DT::datatable(otdat,caption='Matching cocktails. Click on a row to populate the ingredients table below.',
+									escape=FALSE,rownames=FALSE,
 									options=list(order=list(list(1,'desc'),list(0,'desc'),list(2,'asc')),
 															 paging=TRUE,
 															 pageLength=15))
@@ -531,10 +557,8 @@ my_server <- function(input, output, session) {
 		# cf 
 		# col rendering: http://rstudio.github.io/DT/options.html
 		# https://github.com/jcheng5/shiny-jsdemo/blob/master/ui.r
-		DT::datatable(selco,
-									caption='Coingredients.',
-									escape=FALSE,
-									rownames=FALSE,
+		DT::datatable(selco, caption='Coingredients.',
+									escape=FALSE, rownames=FALSE,
 									options=list(paging=TRUE,
 															 pageLength=20)) %>%
 		DT::formatRound(columns=c('rhoval'),digits=2)
@@ -542,42 +566,22 @@ my_server <- function(input, output, session) {
 	server=TRUE)#UNFOLD
 
 	output$selected_ingredients_bar_plot <- renderPlot({
-		plotdat <- selected_drinks() %>%
-			dplyr::filter(grepl('fl oz',unit)) %>%
-			dplyr::arrange(dplyr::desc(rating))
-
-			#facet_grid(.~rating) + 
-		ph <- plotdat %>%
-			mutate(pct_amt=100*proportion) %>%
-			ggplot(aes(ingredient,pct_amt,fill=cocktail)) + 
-			geom_col(position='dodge') + 
-			coord_flip() +
-			labs(y='amount (%)',
-					 x='ingredient',
-					 title='selected drinks')
+		ph <- selected_drinks() %>% .make_bar_plot()
 		ph
 	})
 	output$ingredients_table <- renderTable({
 		#	may have to select down some more.
-		otdat <- selected_drinks() %>%
-			select(-cocktail_id,-rating)
+		retv <- selected_drinks() %>% select(-cocktail_id,-rating)
 	},striped=TRUE,width='100%')
 
 	output$selected_ingredients_tern_plot <- renderPlot({
 		shiny::validate(shiny::need(length(input$must_have_ing) > 1,'Must select 2 or more must have ingredients.'))
 		preing <- input$must_have_ing[1:2]
-		ing <- gsub('\\s','_',preing)
 
-		ptern <- .prepare_ternary(both=final_both(),two_ing=preing)
-		shiny::validate(shiny::need(nrow(ptern) > 0,paste('No cocktails found with both',preing[1],'and',preing[2])))
+		tern_df <- .prepare_ternary(both=final_both(),two_ing=preing)
+		shiny::validate(shiny::need(nrow(tern_df) > 0,paste('No cocktails found with both',preing[1],'and',preing[2])))
+		ph <- .make_tern_plot(tern_df,preing=preing)
 
-		ph <- ptern %>%
-				ggtern::ggtern(ggplot2::aes_string(x=ing[1],y=ing[2],z='Other',
-																					 shape='page_src',label='cocktail',color='rating')) +
-				ggplot2::geom_point(aes(size=rating),alpha=0.5) +
-				ggtern::Llab(preing[1]) + ggtern::Tlab(preing[2]) + 
-				ggplot2::geom_text(hjust='inward',vjust='inward') +
-				ggplot2::guides(shape=guide_legend(title='source'))
 		# see https://github.com/rstudio/shiny/issues/915
 		print(ph)
 		NULL
@@ -585,9 +589,7 @@ my_server <- function(input, output, session) {
 
 
 	setBookmarkExclude(c('bookmark'))
-	observeEvent(input$bookmark,{
-								 session$doBookmark()
-	})
+	observeEvent(input$bookmark,{ session$doBookmark() })
 }
 
 # UNFOLD
@@ -664,12 +666,11 @@ my_server <- function(input, output, session) {
 #' \figure{Screenshot-ternary.png}{options: width=14cm}
 #' }
 #'
-#' @usage
-#'
-#' cocktailApp()
 #'
 #' @return Runs the \code{shiny} app.
 #'
+#' @param page_title  an optional page title for the app. A \code{NULL} value
+#' causes no page title to be used.
 #' @keywords shiny
 #' @template etc
 #' @name cocktailApp
@@ -679,8 +680,8 @@ my_server <- function(input, output, session) {
 #' cocktailApp()
 #' }
 #' @export
-cocktailApp <- function() {
-	shinyApp(ui=my_ui(), server=my_server)
+cocktailApp <- function(page_title='Drink Schnauzer') {
+	shinyApp(ui=my_ui(page_title=page_title), server=my_server)
 }
 # importFrom DT dataTableOutput renderDataTable datatable 
 
