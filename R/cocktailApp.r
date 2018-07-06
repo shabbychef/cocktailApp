@@ -64,7 +64,7 @@ NULL
 #' \newcommand{\CRANpkg}{\href{https://cran.r-project.org/package=#1}{\pkg{#1}}}
 #' \newcommand{\cocktailApp}{\CRANpkg{cocktailApp}}
 #'
-#' @section \cocktailApp{} Initial Version 0.1.0 (2018-07-02) :
+#' @section \cocktailApp{} Initial Version 0.1.0 (2018-07-05) :
 #' \itemize{
 #' \item first CRAN release.
 #' }
