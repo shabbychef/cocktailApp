@@ -41,7 +41,7 @@ test_that("cocktailApp() works", {
   # Use compareImages=FALSE because the expected image screenshots were created
   # on a Mac, and they will differ from screenshots taken on the CI platform,
   # which runs on Linux.
-  expect_pass(testApp("tests/apps/cocktailApp/", tests='crantest.R', compareImages = FALSE))
+  expect_pass(testApp("tests/testthat/the_app/", tests='crantest.R', compareImages = FALSE))
 })
 
 #for vim modeline: (do not edit)
