@@ -551,8 +551,7 @@ my_server <- function(input, output, session) {
 	server=TRUE)#UNFOLD
 	# table of suggestions #FOLDUP
 	output$suggestions_table <- DT::renderDataTable({
-		selco <- suggested_ingr() %>%
-			dplyr::select(cocktail,amt,unit,ingredient)
+		selco <- suggested_ingr() 
 
 		# for this javascript shiznit, recall that javascript starts
 		# counting at zero!
@@ -574,7 +573,7 @@ my_server <- function(input, output, session) {
 	})
 	output$ingredients_table <- renderTable({
 		#	may have to select down some more.
-		retv <- selected_drinks() %>% select(-cocktail_id,-rating)
+		retv <- selected_drinks() %>% dplyr::select(cocktail,amt,unit,ingredient)
 	},striped=TRUE,width='100%')
 
 	output$selected_ingredients_tern_plot <- renderPlot({
