@@ -551,7 +551,8 @@ my_server <- function(input, output, session) {
 	server=TRUE)#UNFOLD
 	# table of suggestions #FOLDUP
 	output$suggestions_table <- DT::renderDataTable({
-		selco <- suggested_ingr()
+		selco <- suggested_ingr() %>%
+			dplyr::select(cocktail,amt,unit,ingredient)
 
 		# for this javascript shiznit, recall that javascript starts
 		# counting at zero!
