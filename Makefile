@@ -23,5 +23,9 @@ PKG_DEPS 					+= data/cocktails.rda
 data-raw/cocktails.csv : ../drinksy/drinks.csv
 	cp $< $@
 
+# overload
+data/%.rda : data-raw/%.csv
+	r -l devtools,readr -e '$* <- readr::read_csv("$<",guess_max=100000);devtools::use_data($*,overwrite=TRUE)'
+
 #for vim modeline: (do not edit)
 # vim:ts=2:sw=2:tw=129:fdm=marker:fmr=FOLDUP,UNFOLD:cms=#%s:tags=.tags;:syn=make:ft=make:ai:si:cin:nu:fo=croqt:cino=p0t0c5(0:
