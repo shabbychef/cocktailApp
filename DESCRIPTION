@@ -32,3 +32,4 @@ Suggests:
 URL: https://github.com/shabbychef/cocktailApp
 Collate:
     'cocktailApp.r'
+RoxygenNote: 6.0.1

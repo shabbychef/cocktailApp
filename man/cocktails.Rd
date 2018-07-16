@@ -4,9 +4,10 @@
 \name{cocktails}
 \alias{cocktails}
 \title{Cocktails Data}
-\format{A \code{data.frame} object with around 77,000 rows and 12 columns. The
-data were scraped from three websites: Difford's guide, Webtender, and 
-Kindred Cocktails, in late 2017.
+\format{A \code{data.frame} object with around 117,000 rows and 12 columns. The
+data were scraped from four websites: Difford's guide, Webtender, and 
+Kindred Cocktails, all scraped in late 2017; and Drinks Mixer, scraped in
+mid 2018.
 
 The columns are defined as follows:
 \describe{
@@ -37,13 +38,14 @@ The columns are defined as follows:
 \source{
 Difford's Guide, \url{http://www.diffordsguide.com/},
 Webtender, \url{http://www.webtender.com},
-Kindred Cocktails, \url{http://kindredcocktails.com}.
+Kindred Cocktails, \url{http://kindredcocktails.com},
+Drinks Mixer, \url{http://www.drinksmixer.com}.
 }
 \usage{
 cocktails
 }
 \description{
-Ingredients of nearly 16 thousand cocktails, scraped from the web.
+Ingredients of over 26 thousand cocktails, scraped from the web.
 }
 \note{
 The data were scraped from several websites, which falls in a legal gray area.
