@@ -202,8 +202,8 @@ my_ui <- function(page_title='Drink Schnauzer') {
 				selectInput("must_not_have_ing","Must Not Have:",choices=ingr,selected=c(),multiple=TRUE),
 				selectInput("from_sources","Sources:",choices=all_source,selected=all_source[grepl('diffords|kindred',all_source)],multiple=TRUE),
 				textInput("name_regex","Name Regex:",value='',placeholder='^sazerac'),
-				helpText('Press for random cocktails:'),
-				actionButton("hobsons","Hobson's Choice!"),
+				helpText('Select for random cocktails:'),
+				checkboxInput("hobsons","Hobson's Choice!",value=FALSE),
 				hr(),
 				sliderInput("max_ingr","Maximum Ingredients:",sep='',min=1,max=20,value=6),
 				sliderInput("max_other_ingr","Maximum Unlisted Ingredients:",sep='',min=1,max=20,value=6),
@@ -547,24 +547,20 @@ my_server <- function(input, output, session) {
 	hobsons_choice <- reactiveValues(ids=NULL)
 	
 	observeEvent(input$hobsons,{
-		both <- .filter_num_ingredients(both=get_both(),must_have_ing=c(),
-														min_rating=input$min_rating,max_ingr=input$max_ingr,
-														max_other_ingr=input$max_other_ingr) 
-		both <- .filter_tstat(both=both,min_t=input$min_tstat,t_zero=input$t_zero)
-		both <- .filter_src(both=both,from_sources=input$from_sources)
-		eligible <- both$cocktail %>%
-			distinct(cocktail_id) %>%
-			sample_n(size=5,replace=FALSE)
-		hobsons_choice$ids <- eligible$cocktail_id
+		if (input$hobsons) {
+			both <- .filter_num_ingredients(both=get_both(),must_have_ing=c(),
+															min_rating=input$min_rating,max_ingr=input$max_ingr,
+															max_other_ingr=input$max_other_ingr) 
+			both <- .filter_tstat(both=both,min_t=input$min_tstat,t_zero=input$t_zero)
+			both <- .filter_src(both=both,from_sources=input$from_sources)
+			eligible <- both$cocktail %>%
+				distinct(cocktail_id) %>%
+				sample_n(size=5,replace=FALSE)
+			hobsons_choice$ids <- eligible$cocktail_id
+		} else {
+			hobsons_choice$ids <- NULL
+		}
 	})
-	# clear the choices when you select ingredients? others?
-	observeEvent({
-		input$must_have_ing
-		input$must_not_have_ing
-	},{
-		hobsons_choice$ids <- NULL
-	})
-
 	# table of comparables #FOLDUP
 	output$drinks_table <- DT::renderDataTable({
 		otdat <- .drinks_table(both=final_both())
@@ -654,11 +650,12 @@ my_server <- function(input, output, session) {
 #' cocktails, and by \sQuote{rho}, which is like a correlation based
 #' on the proportion.
 #' 
-#' A button labelled, \dQuote{Hobson's Choice} allows you to populate
+#' A checkbox labelled, \dQuote{Hobson's Choice} allows you to populate
 #' the cocktail table with five random cocktails that meet the numerical
 #' filters on number of ingredients, rating, and so on, but which do not
-#' meet the ingredient selections. Changing the ingredients selections
-#' will unselect the random selections.
+#' meet the ingredient selections. Unselecting and re-selecting the
+#' checkbox selects a new set of random cocktails. Note that the random
+#' selection is not responsive to changes in the numerical filters.
 #'
 #' @section Screenshots:
 #'

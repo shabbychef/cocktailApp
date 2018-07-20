@@ -35,6 +35,13 @@ selected ingredients. A co-ingredient is an ingredient that commonly
 occurs with the selected ingredient, as measured by the number of
 cocktails, and by \sQuote{rho}, which is like a correlation based
 on the proportion.
+
+A checkbox labelled, \dQuote{Hobson's Choice} allows you to populate
+the cocktail table with five random cocktails that meet the numerical
+filters on number of ingredients, rating, and so on, but which do not
+meet the ingredient selections. Unselecting and re-selecting the
+checkbox selects a new set of random cocktails. Note that the random
+selection is not responsive to changes in the numerical filters.
 }
 \section{Screenshots}{
 
