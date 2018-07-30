@@ -173,7 +173,7 @@ my_ui <- function(page_title='Drink Schnauzer') {
 	all_source <- unique(sources$url)
 
 	if (!is.null(page_title)) {
-		tp_bits <- titlePanel("Drink Schnauzer")
+		tp_bits <- titlePanel(page_title)
 	} else {
 		tp_bits <- tagList()
 	}
