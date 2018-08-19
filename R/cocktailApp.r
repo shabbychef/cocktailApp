@@ -41,8 +41,12 @@
 #' @importFrom forcats fct_rev
 #' @importFrom tibble tribble 
 #' @importFrom tidyr spread
-#' @importFrom Ternary TernaryPlot TernaryPoints TernaryText
 #' @importFrom stats setNames
+#'
+#' @importFrom Ternary TernaryPlot TernaryPoints TernaryText
+#' @importFrom graphics legend
+#' @importFrom grDevices rgb
+#'
 #'
 #' @name cocktailApp-package
 #' @rdname cocktailApp-package
@@ -479,17 +483,17 @@ applylink <- function(title,url) {
 				 title='selected drinks')
 }
 
-.make_ggtern_plot <- function(tern_df,preing) {
-	ing <- gsub('\\s','_',preing)
-	ph <- tern_df %>%
-		ggtern::ggtern(ggplot2::aes_string(x=ing[1],y=ing[2],z='Other',
-																			 shape='page_src',label='cocktail',color='rating')) +
-		ggplot2::geom_point(aes(size=rating),alpha=0.5) +
-		ggtern::Llab(preing[1]) + ggtern::Tlab(preing[2]) + 
-		ggplot2::geom_text(hjust='inward',vjust='inward') +
-		ggplot2::guides(shape=guide_legend(title='source'))
-	ph
-}
+#.make_ggtern_plot <- function(tern_df,preing) {
+	#ing <- gsub('\\s','_',preing)
+	#ph <- tern_df %>%
+		#ggtern::ggtern(ggplot2::aes_string(x=ing[1],y=ing[2],z='Other',
+																			 #shape='page_src',label='cocktail',color='rating')) +
+		#ggplot2::geom_point(aes(size=rating),alpha=0.5) +
+		#ggtern::Llab(preing[1]) + ggtern::Tlab(preing[2]) + 
+		#ggplot2::geom_text(hjust='inward',vjust='inward') +
+		#ggplot2::guides(shape=guide_legend(title='source'))
+	#ph
+#}
 
 # testing
 #preing <- c('bourbon','benedictine') 
