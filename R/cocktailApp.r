@@ -33,7 +33,7 @@
 #' @template etc
 #'
 #' @import shiny
-#' @importFrom dplyr mutate arrange select filter rename left_join right_join coalesce distinct summarize everything ungroup first sample_n
+#' @importFrom dplyr mutate arrange select filter rename left_join right_join coalesce distinct summarize everything ungroup first sample_n one_of
 #' @importFrom utils data
 #' @importFrom ggplot2 ggplot labs coord_flip aes geom_col geom_point geom_text guide_legend
 #' @importFrom shinythemes shinytheme
@@ -42,6 +42,7 @@
 #' @importFrom tibble tribble 
 #' @importFrom tidyr spread
 #' @importFrom ggtern ggtern Tlab Llab Rlab
+#' @importFrom Ternary TernaryPlot TernaryPoints TernaryText
 #' @importFrom stats setNames
 #'
 #' @name cocktailApp-package
@@ -63,6 +64,13 @@ NULL
 #'
 #' \newcommand{\CRANpkg}{\href{https://cran.r-project.org/package=#1}{\pkg{#1}}}
 #' \newcommand{\cocktailApp}{\CRANpkg{cocktailApp}}
+#'
+#' @section \cocktailApp{} Version 0.2.0 (2018-08-25) :
+#' \itemize{
+#' \item adding another source.
+#' \item adding Hobson's Choice button.
+#' \item removing ggtern plotting in favor of TernaryPlot.
+#' }
 #'
 #' @section \cocktailApp{} Initial Version 0.1.0 (2018-07-05) :
 #' \itemize{
@@ -470,7 +478,7 @@ applylink <- function(title,url) {
 				 title='selected drinks')
 }
 
-.make_tern_plot <- function(tern_df,preing) {
+.make_ggtern_plot <- function(tern_df,preing) {
 	ing <- gsub('\\s','_',preing)
 	ph <- tern_df %>%
 		ggtern::ggtern(ggplot2::aes_string(x=ing[1],y=ing[2],z='Other',
@@ -482,6 +490,49 @@ applylink <- function(title,url) {
 	ph
 }
 
+# testing
+#preing <- c('bourbon','benedictine') 
+#tern_df <- data.frame(bourbon=runif(50,max=0.5),benedictine=runif(50,max=0.3)) %>% 
+	#mutate(Other=1-bourbon-benedictine) %>%
+	#mutate(rating=sample(2:5,n(),replace=TRUE)) %>%
+	#mutate(cocktail=sample(paste0('xy',letters),n(),replace=TRUE)) %>%
+	#mutate(page_src=sample(1:3,n(),replace=TRUE)) 
+#
+
+.make_tern_plot <- function(tern_df,preing) {
+	preing <- c(preing,'Other')
+	TernaryPlot(alab=paste(preing[1],'\u2192'),
+							blab=paste(preing[2],'\u2192'),
+							clab=paste('\u2190',preing[3]),
+							atip=preing[1],btip=preing[2],ctip=preing[3],
+							point='up', lab.cex=0.8, grid.minor.lines = 0,
+							grid.lty='solid', col=rgb(0.9, 0.9, 0.9), grid.col='white', 
+							axis.col=rgb(0.6, 0.6, 0.6), ticks.col=rgb(0.6, 0.6, 0.6),
+							padding=0.08)
+							 #bg=tern_df$rating / 3,
+	coords <- tern_df %>% select(one_of(preing[1]),one_of(preing[2]),one_of(preing[3]))
+	blue0 <- min(min(tern_df$rating),1)
+	blueness <- (tern_df$rating - blue0) / (5 - blue0)
+	redness <- 1 - blueness
+	fac_src <- factor(tern_df$page_src)
+	pch0 <- 22
+	TernaryPoints(coords,
+								col=rgb(red=redness,green=0,blue=blueness,alpha=0.25),
+								bg=rgb(red=redness,green=0,blue=blueness,alpha=0.25),
+								cex=tern_df$rating / 3,
+								pch=pch0+as.numeric(fac_src))
+	TernaryText(coords,
+							tern_df$cocktail,
+							col=rgb(red=redness,green=0,blue=blueness,alpha=0.65),
+							bg=rgb(red=redness,green=0,blue=blueness,alpha=0.65),
+							cex=1)
+	legend('right',
+				 pt.cex=1.8,
+				 pt.bg=rgb(0, 0, 255, 128, NULL, 255), 
+				 pch=pch0+(1:length(levels(fac_src))),
+				 legend=levels(fac_src),
+				 cex=0.8, bty='n')
+}
 
 # Define server logic # FOLDUP
 my_server <- function(input, output, session) {
@@ -610,13 +661,12 @@ my_server <- function(input, output, session) {
 
 		tern_df <- .prepare_ternary(both=final_both(),two_ing=preing)
 		shiny::validate(shiny::need(nrow(tern_df) > 0,paste('No cocktails found with both',preing[1],'and',preing[2])))
-		ph <- .make_tern_plot(tern_df,preing=preing)
-
-		# see https://github.com/rstudio/shiny/issues/915
-		print(ph)
-		NULL
+		#ph <- .make_ggtern_plot(tern_df,preing=preing)
+		## see https://github.com/rstudio/shiny/issues/915
+		#print(ph)
+		#NULL
+		.make_tern_plot(tern_df,preing=preing)
 	},height=900,width=1300)
-
 
 	setBookmarkExclude(c('bookmark'))
 	observeEvent(input$bookmark,{ session$doBookmark() })

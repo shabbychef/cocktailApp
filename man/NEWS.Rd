@@ -9,6 +9,15 @@ News for package \sQuote{cocktailApp}
 \newcommand{\CRANpkg}{\href{https://cran.r-project.org/package=#1}{\pkg{#1}}}
 \newcommand{\cocktailApp}{\CRANpkg{cocktailApp}}
 }
+\section{\cocktailApp{} Version 0.2.0 (2018-08-25) }{
+
+\itemize{
+\item adding another source.
+\item adding Hobson's Choice button.
+\item removing ggtern plotting in favor of TernaryPlot.
+}
+}
+
 \section{\cocktailApp{} Initial Version 0.1.0 (2018-07-05) }{
 
 \itemize{
