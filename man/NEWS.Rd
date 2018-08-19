@@ -14,7 +14,7 @@ News for package \sQuote{cocktailApp}
 \itemize{
 \item adding another source.
 \item adding \dQuote{Hobson's Choice} button.
-\item removing dependency on \sQuote{ggtern}, replacing with \sQuote{TernaryPlot}.
+\item removing dependency on \sQuote{ggtern}, replacing with \sQuote{Ternary}.
 }
 }
 

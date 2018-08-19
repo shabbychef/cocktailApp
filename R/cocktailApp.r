@@ -74,7 +74,7 @@ NULL
 #' \itemize{
 #' \item adding another source.
 #' \item adding \dQuote{Hobson's Choice} button.
-#' \item removing dependency on \sQuote{ggtern}, replacing with \sQuote{TernaryPlot}.
+#' \item removing dependency on \sQuote{ggtern}, replacing with \sQuote{Ternary}.
 #' }
 #'
 #' @section \cocktailApp{} Initial Version 0.1.0 (2018-07-05) :
