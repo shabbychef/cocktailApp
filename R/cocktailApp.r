@@ -41,7 +41,6 @@
 #' @importFrom forcats fct_rev
 #' @importFrom tibble tribble 
 #' @importFrom tidyr spread
-#' @importFrom ggtern ggtern Tlab Llab Rlab
 #' @importFrom Ternary TernaryPlot TernaryPoints TernaryText
 #' @importFrom stats setNames
 #'
@@ -55,6 +54,8 @@
 #' This package is maintained as a hobby. 
 #'
 NULL
+
+# no longer @importFrom ggtern ggtern Tlab Llab Rlab
 
 #' @title News for package 'cocktailApp':
 #'
