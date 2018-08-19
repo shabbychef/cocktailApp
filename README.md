@@ -49,6 +49,8 @@ The app can be run in a few ways:
 ## Screenshots
 
 ![](man/figures/Screenshot-mainpage.png)
+![](man/figures/Screenshot-ingredients.png)
+![](man/figures/Screenshot-hobsons.png)
 ![](man/figures/Screenshot-ternary.png)
 ![](man/figures/Screenshot-barplot.png)
 
