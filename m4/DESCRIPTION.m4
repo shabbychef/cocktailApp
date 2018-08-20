@@ -17,7 +17,7 @@ Description: A 'shiny' app to discover cocktails. The
     app allows one to search for cocktails by ingredient,
     filter on rating, and number of ingredients. The
     package also contains data with the ingredients of
-    nearly 16 thousand cocktails scraped from the web.
+    nearly 26 thousand cocktails scraped from the web.
 Depends: 
     R (>= 3.0.2),
     shiny
