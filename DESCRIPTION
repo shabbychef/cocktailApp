@@ -5,7 +5,7 @@ Authors@R: c(person(c("Steven", "E."), "Pav",
     email="shabbychef@gmail.com",
     comment = c(ORCID = "0000-0002-4197-6195")))
 Version: 0.2.0.0001
-Date: 2018-08-19
+Date: 2018-08-23
 License: LGPL-3
 Title: 'shiny' App to Discover Cocktails
 BugReports: https://github.com/shabbychef/cocktailApp/issues
@@ -24,7 +24,7 @@ Imports:
     tibble,
     ggplot2,
     magrittr,
-    Ternary,
+    ggtern,
     forcats,
     DT
 Suggests: 
@@ -32,3 +32,4 @@ Suggests:
 URL: https://github.com/shabbychef/cocktailApp
 Collate:
     'cocktailApp.r'
+RoxygenNote: 6.0.1

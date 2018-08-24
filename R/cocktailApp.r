@@ -43,7 +43,7 @@
 #' @importFrom tidyr spread
 #' @importFrom stats setNames
 #'
-#' @importFrom Ternary TernaryPlot TernaryPoints TernaryText
+#' @importFrom ggtern ggtern Tlab Llab Rlab
 #' @importFrom graphics legend
 #' @importFrom grDevices rgb
 #'
@@ -60,6 +60,7 @@
 NULL
 
 # no longer @importFrom ggtern ggtern Tlab Llab Rlab
+# no longer @importFrom Ternary TernaryPlot TernaryPoints TernaryText
 
 #' @title News for package 'cocktailApp':
 #'
@@ -483,17 +484,17 @@ applylink <- function(title,url) {
 				 title='selected drinks')
 }
 
-#.make_ggtern_plot <- function(tern_df,preing) {
-	#ing <- gsub('\\s','_',preing)
-	#ph <- tern_df %>%
-		#ggtern::ggtern(ggplot2::aes_string(x=ing[1],y=ing[2],z='Other',
-																			 #shape='page_src',label='cocktail',color='rating')) +
-		#ggplot2::geom_point(aes(size=rating),alpha=0.5) +
-		#ggtern::Llab(preing[1]) + ggtern::Tlab(preing[2]) + 
-		#ggplot2::geom_text(hjust='inward',vjust='inward') +
-		#ggplot2::guides(shape=guide_legend(title='source'))
-	#ph
-#}
+.make_tern_plot <- function(tern_df,preing) {
+	ing <- gsub('\\s','_',preing)
+	ph <- tern_df %>%
+		ggtern::ggtern(ggplot2::aes_string(x=ing[1],y=ing[2],z='Other',
+																			 shape='page_src',label='cocktail',color='rating')) +
+		ggplot2::geom_point(aes(size=rating),alpha=0.5) +
+		ggtern::Llab(preing[1]) + ggtern::Tlab(preing[2]) + 
+		ggplot2::geom_text(hjust='inward',vjust='inward') +
+		ggplot2::guides(shape=guide_legend(title='source'))
+	ph
+}
 
 # testing
 #preing <- c('bourbon','benedictine') 
@@ -504,40 +505,40 @@ applylink <- function(title,url) {
 	#mutate(page_src=sample(1:3,n(),replace=TRUE)) 
 #
 
-.make_tern_plot <- function(tern_df,preing) {
-	preing <- c(preing,'Other')
-	TernaryPlot(alab=paste(preing[1],'\u2192'),
-							blab=paste(preing[2],'\u2192'),
-							clab=paste('\u2190',preing[3]),
-							atip=preing[1],btip=preing[2],ctip=preing[3],
-							point='up', lab.cex=0.8, grid.minor.lines = 0,
-							grid.lty='solid', col=rgb(0.9, 0.9, 0.9), grid.col='white', 
-							axis.col=rgb(0.6, 0.6, 0.6), ticks.col=rgb(0.6, 0.6, 0.6),
-							padding=0.08)
-							 #bg=tern_df$rating / 3,
-	coords <- tern_df %>% select(one_of(preing[1]),one_of(preing[2]),one_of(preing[3]))
-	blue0 <- min(min(tern_df$rating),1)
-	blueness <- (tern_df$rating - blue0) / (5 - blue0)
-	redness <- 1 - blueness
-	fac_src <- factor(tern_df$page_src)
-	pch0 <- 22
-	TernaryPoints(coords,
-								col=rgb(red=redness,green=0,blue=blueness,alpha=0.25),
-								bg=rgb(red=redness,green=0,blue=blueness,alpha=0.25),
-								cex=tern_df$rating / 3,
-								pch=pch0+as.numeric(fac_src))
-	TernaryText(coords,
-							tern_df$cocktail,
-							col=rgb(red=redness,green=0,blue=blueness,alpha=0.65),
-							bg=rgb(red=redness,green=0,blue=blueness,alpha=0.65),
-							cex=1)
-	legend('right',
-				 pt.cex=1.8,
-				 pt.bg=rgb(0, 0, 255, 128, NULL, 255), 
-				 pch=pch0+(1:length(levels(fac_src))),
-				 legend=levels(fac_src),
-				 cex=0.8, bty='n')
-}
+#.make_tern_plot <- function(tern_df,preing) {
+	#preing <- c(preing,'Other')
+	#TernaryPlot(alab=paste(preing[1],'\u2192'),
+							#blab=paste(preing[2],'\u2192'),
+							#clab=paste('\u2190',preing[3]),
+							#atip=preing[1],btip=preing[2],ctip=preing[3],
+							#point='up', lab.cex=0.8, grid.minor.lines = 0,
+							#grid.lty='solid', col=rgb(0.9, 0.9, 0.9), grid.col='white', 
+							#axis.col=rgb(0.6, 0.6, 0.6), ticks.col=rgb(0.6, 0.6, 0.6),
+							#padding=0.08)
+							 ##bg=tern_df$rating / 3,
+	#coords <- tern_df %>% select(one_of(preing[1]),one_of(preing[2]),one_of(preing[3]))
+	#blue0 <- min(min(tern_df$rating),1)
+	#blueness <- (tern_df$rating - blue0) / (5 - blue0)
+	#redness <- 1 - blueness
+	#fac_src <- factor(tern_df$page_src)
+	#pch0 <- 22
+	#TernaryPoints(coords,
+								#col=rgb(red=redness,green=0,blue=blueness,alpha=0.25),
+								#bg=rgb(red=redness,green=0,blue=blueness,alpha=0.25),
+								#cex=tern_df$rating / 3,
+								#pch=pch0+as.numeric(fac_src))
+	#TernaryText(coords,
+							#tern_df$cocktail,
+							#col=rgb(red=redness,green=0,blue=blueness,alpha=0.65),
+							#bg=rgb(red=redness,green=0,blue=blueness,alpha=0.65),
+							#cex=1)
+	#legend('right',
+				 #pt.cex=1.8,
+				 #pt.bg=rgb(0, 0, 255, 128, NULL, 255), 
+				 #pch=pch0+(1:length(levels(fac_src))),
+				 #legend=levels(fac_src),
+				 #cex=0.8, bty='n')
+#}
 
 # Define server logic # FOLDUP
 my_server <- function(input, output, session) {
