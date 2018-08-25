@@ -4,11 +4,18 @@
 \alias{cocktailApp}
 \title{cocktailApp .}
 \usage{
-cocktailApp(page_title = "Drink Schnauzer")
+cocktailApp(page_title = "Drink Schnauzer", enableBookmarking = "url")
 }
 \arguments{
 \item{page_title}{an optional page title for the app. A \code{NULL} value
 causes no page title to be used.}
+
+\item{enableBookmarking}{Can be one of \code{"url"}, \code{"server"}, or
+\code{"disable"}. This is equivalent to calling the
+\code{\link{enableBookmarking}()} function just before calling
+\code{shinyApp()}. With the default value (\code{NULL}), the app will
+respect the setting from any previous calls to \code{enableBookmarking()}.
+See \code{\link{enableBookmarking}} for more information.}
 }
 \value{
 Runs the \code{shiny} app.

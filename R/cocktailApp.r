@@ -672,8 +672,10 @@ my_server <- function(input, output, session) {
 		#NULL
 		.make_tern_plot(tern_df,preing=preing)
 	},height=900,width=1300)
-
-	setBookmarkExclude(c('bookmark'))
+	#'drinks_table_rows_all',
+	setBookmarkExclude(c('bookmark',
+											 'drinks_table_cell_clicked',
+											 'drinks_table_row_last_clicked'))
 	observeEvent(input$bookmark,{ session$doBookmark() })
 }
 
@@ -784,6 +786,7 @@ my_server <- function(input, output, session) {
 #'
 #' @param page_title  an optional page title for the app. A \code{NULL} value
 #' causes no page title to be used.
+#' @inheritParams shiny::shinyApp
 #' @keywords shiny
 #' @template etc
 #' @name cocktailApp
@@ -793,8 +796,10 @@ my_server <- function(input, output, session) {
 #' cocktailApp()
 #' }
 #' @export
-cocktailApp <- function(page_title='Drink Schnauzer') {
-	shinyApp(ui=my_ui(page_title=page_title), server=my_server)
+cocktailApp <- function(page_title='Drink Schnauzer',enableBookmarking='url') {
+	shinyApp(ui=function(request){ my_ui(page_title=page_title) },  # to enable bookmarking, do this rigamarole.
+					 server=my_server,
+					 enableBookmarking=enableBookmarking)
 }
 # importFrom DT dataTableOutput renderDataTable datatable 
 
