@@ -81,8 +81,8 @@ test_that('plot stuff',{# FOLDUP
 
 	expect_error(merged <- .merge_both(both6),NA)
 
-	# travis only?
 	skip_on_cran()
+	skip_on_travis()
 	expect_error(ph <- .make_bar_plot(merged),NA)
 })# UNFOLD
 test_that('correlation and coingredient',{
