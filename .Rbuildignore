@@ -43,3 +43,4 @@ submodule_directions.sh
 ^data-raw$
 ^app.R$
 foo.r
+man/my_server.Rd
