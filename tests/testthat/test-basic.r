@@ -46,6 +46,7 @@ test_that("shiny bits",{#FOLDUP
 
 	both <- list(recipe=recipe_df %>% dplyr::select(-cocktail,-rating,-votes,-url),cocktail=cocktail_df)
 
+	skip_on_travis()
 	expect_error(both2 <- .filter_ingredients(both,name_regex='sazerac',must_have_ing=c('Bourbon','Averna'),
 															 must_not_have_ing=c(),
 															 logical_sense='OR'),NA)
