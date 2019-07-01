@@ -42,6 +42,7 @@ test_that("shiny bits",{#FOLDUP
 	utils::data("cocktails", package="cocktailApp")
 	indat <- cocktails
 
+	skip_on_travis()
 	expect_error(recipe_df <- .add_id(indat),NA)
 	expect_error(cocktail_df <- .distill_info(recipe_df),NA)
 
@@ -73,7 +74,8 @@ test_that('plot stuff',{# FOLDUP
 	two_ing <- c('Bourbon','Averna')
 	expect_error(both3 <- .filter_num_ingredients(both2,must_have_ing=two_ing,min_rating=2,max_ingr=10,max_other_ingr=5),NA)
 	expect_error(ptern <- .prepare_ternary(both3,two_ing=two_ing),NA)
-	.make_tern_plot(ptern,two_ing)
+	skip_on_travis()
+	expect_error(.make_tern_plot(ptern,two_ing),NA)
 
 	expect_error(both4 <- .filter_tstat(both3,min_t=2,t_zero=1),NA)
 	expect_error(both5 <- .filter_src(both4,from_sources=c('diffordsguide')),NA)
@@ -89,7 +91,8 @@ test_that('correlation and coingredient',{
 	utils::data("cocktails", package="cocktailApp")
 	indat <- cocktails
 
-	recipe_df <- .add_id(indat)
+	skip_on_travis()
+	expect_error(recipe_df <- .add_id(indat),NA)
 
 	expect_error(rhov1 <- .coingredients(recipe_df),NA)
 	expect_error(rhov2 <- .ingredient_rho(recipe_df),NA)
