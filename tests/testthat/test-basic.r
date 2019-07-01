@@ -35,14 +35,12 @@ set.char.seed <- function(str) {
 
 library(dplyr)
 context("code runs at all")#FOLDUP
+
+utils::data("cocktails", package="cocktailApp")
+
 test_that("shiny bits",{#FOLDUP
-	# travis only?
-	#skip_on_cran()
+	indat <- cocktails
 
-	#utils::data("cocktails", package="cocktailApp")
-	indat <- cocktailApp::cocktails
-
-	skip_on_travis()
 	expect_error(recipe_df <- .add_id(indat),NA)
 	expect_error(cocktail_df <- .distill_info(recipe_df),NA)
 
@@ -62,8 +60,7 @@ test_that("shiny bits",{#FOLDUP
 	expect_error(merged <- .merge_both(both6),NA)
 })#UNFOLD
 test_that('plot stuff',{# FOLDUP
-	#utils::data("cocktails", package="cocktailApp")
-	indat <- cocktailApp::cocktails
+	indat <- cocktails
 	expect_error(both <- .gen_both(indat),NA)
 	expect_error(both_alt <- .gen_both(),NA)
 
@@ -88,8 +85,7 @@ test_that('plot stuff',{# FOLDUP
 	expect_error(ph <- .make_bar_plot(merged),NA)
 })# UNFOLD
 test_that('correlation and coingredient',{
-	#utils::data("cocktails", package="cocktailApp")
-	indat <- cocktailApp::cocktails
+	indat <- cocktails
 
 	skip_on_travis()
 	expect_error(recipe_df <- .add_id(indat),NA)
