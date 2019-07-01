@@ -41,12 +41,13 @@ utils::data("cocktails", package="cocktailApp")
 test_that("shiny bits",{#FOLDUP
 	indat <- cocktails
 
+	skip_on_cran()
+	skip_on_travis()
 	expect_error(recipe_df <- .add_id(indat),NA)
 	expect_error(cocktail_df <- .distill_info(recipe_df),NA)
 
 	both <- list(recipe=recipe_df %>% dplyr::select(-cocktail,-rating,-votes,-url),cocktail=cocktail_df)
 
-	skip_on_travis()
 	expect_error(both2 <- .filter_ingredients(both,name_regex='sazerac',must_have_ing=c('Bourbon','Averna'),
 															 must_not_have_ing=c(),
 															 logical_sense='OR'),NA)
@@ -65,6 +66,8 @@ test_that('plot stuff',{# FOLDUP
 	expect_error(both <- .gen_both(indat),NA)
 	expect_error(both_alt <- .gen_both(),NA)
 
+	skip_on_cran()
+	skip_on_travis()
 	expect_error(both2 <- .filter_ingredients(both,name_regex='sazerac',must_have_ing=c('Bourbon','Averna'),
 															 must_not_have_ing=c(),
 															 logical_sense='OR'),NA)
@@ -72,7 +75,6 @@ test_that('plot stuff',{# FOLDUP
 	two_ing <- c('Bourbon','Averna')
 	expect_error(both3 <- .filter_num_ingredients(both2,must_have_ing=two_ing,min_rating=2,max_ingr=10,max_other_ingr=5),NA)
 	expect_error(ptern <- .prepare_ternary(both3,two_ing=two_ing),NA)
-	skip_on_travis()
 	expect_error(.make_ggtern_plot(ptern,two_ing),NA)
 
 	expect_error(both4 <- .filter_tstat(both3,min_t=2,t_zero=1),NA)
@@ -81,13 +83,12 @@ test_that('plot stuff',{# FOLDUP
 
 	expect_error(merged <- .merge_both(both6),NA)
 
-	skip_on_cran()
-	skip_on_travis()
 	expect_error(ph <- .make_bar_plot(merged),NA)
 })# UNFOLD
 test_that('correlation and coingredient',{
 	indat <- cocktails
 
+	skip_on_cran()
 	skip_on_travis()
 	expect_error(recipe_df <- .add_id(indat),NA)
 
