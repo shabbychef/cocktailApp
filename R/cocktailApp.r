@@ -22,6 +22,7 @@
 # Comments: Steven E. Pav
 
 # no longer @importFrom Ternary TernaryPlot TernaryPoints TernaryText
+# no longer @importFrom utils data
 
 #' Shiny app to discover cocktails.
 #' 
@@ -36,7 +37,6 @@
 #'
 #' @import shiny
 #' @importFrom dplyr mutate arrange select filter rename left_join right_join coalesce distinct summarize everything ungroup first sample_n one_of
-#' @importFrom utils data
 #' @importFrom ggplot2 ggplot labs coord_flip aes geom_col geom_point geom_text guide_legend
 #' @importFrom shinythemes shinytheme
 #' @importFrom magrittr %>%
@@ -163,8 +163,8 @@ globalVariables(c('cocktails','votes','rating','cocktail','proportion','url','sh
 
 # Define UI for ...
 my_ui <- function(page_title='Drink Schnauzer') {
-	utils::data("cocktails", package="cocktailApp")
-	indat <- cocktails
+	#utils::data("cocktails", package="cocktailApp")
+	indat <- cocktailApp::cocktails
 
 	# let's order ingredients by number of times they
 	# appear, then alphabetical. seems about right.
@@ -300,8 +300,8 @@ applylink <- function(title,url) {
 
 .gen_both <- function(raw_dat=NULL) {
 	if (missing(raw_dat) || is.null(raw_dat)) {
-		utils::data("cocktails", package="cocktailApp")
-		raw_dat <- cocktails
+		#utils::data("cocktails", package="cocktailApp")
+		raw_dat <- cocktailApp::cocktails
 	}
 	# basically normalize the data: recipes and cocktails, 
 	# and keep them in a list
