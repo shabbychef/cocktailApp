@@ -21,6 +21,8 @@
 # Author: Steven E. Pav
 # Comments: Steven E. Pav
 
+# no longer @importFrom Ternary TernaryPlot TernaryPoints TernaryText
+
 #' Shiny app to discover cocktails.
 #' 
 #' @section Legal Mumbo Jumbo:
@@ -43,7 +45,6 @@
 #' @importFrom tidyr spread
 #' @importFrom stats setNames
 #'
-#' @importFrom Ternary TernaryPlot TernaryPoints TernaryText
 #' @importFrom graphics legend
 #' @importFrom grDevices rgb
 #'

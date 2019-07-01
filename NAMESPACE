@@ -2,9 +2,6 @@
 
 export(cocktailApp)
 import(shiny)
-importFrom(Ternary,TernaryPlot)
-importFrom(Ternary,TernaryPoints)
-importFrom(Ternary,TernaryText)
 importFrom(dplyr,arrange)
 importFrom(dplyr,coalesce)
 importFrom(dplyr,distinct)
