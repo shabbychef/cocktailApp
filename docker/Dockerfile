@@ -37,7 +37,7 @@ RUN (DEBIAN_FRONTEND=noninteractive DEBCONF_NONINTERACTIVE_SEEN=true apt-get ins
 	sync ; \
 	/usr/local/bin/install2.r Rcpp testthat roxygen2 devtools knitr formatR codetools)
 
-RUN (/usr/local/bin/install2.r dplyr tidyr ggplot2 shiny shinythemes DT magrittr forcats Ternary; )
+RUN (/usr/local/bin/install2.r dplyr tidyr ggplot2 shiny shinythemes DT magrittr forcats ggtern; )
 
 RUN groupadd -g 1001 spav && useradd -g spav -u 1001 spav;
 USER spav
