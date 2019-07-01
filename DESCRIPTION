@@ -24,7 +24,7 @@ Imports:
     tibble,
     ggplot2,
     magrittr,
-    Ternary,
+    ggtern,
     forcats,
     DT
 Suggests: 

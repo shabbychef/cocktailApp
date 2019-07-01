@@ -59,8 +59,6 @@
 #'
 NULL
 
-# no longer @importFrom ggtern ggtern Tlab Llab Rlab
-
 #' @title News for package 'cocktailApp':
 #'
 #' @description 
@@ -70,11 +68,17 @@ NULL
 #' \newcommand{\CRANpkg}{\href{https://cran.r-project.org/package=#1}{\pkg{#1}}}
 #' \newcommand{\cocktailApp}{\CRANpkg{cocktailApp}}
 #'
+#' @section \cocktailApp{} Version 0.2.1 (2019-07-04) :
+#' \itemize{
+#' \item CRAN fix as tests were hanging.
+#' \item replace \code{Ternary} package with \code{ggtern}.
+#' }
+#'
 #' @section \cocktailApp{} Version 0.2.0 (2018-08-19) :
 #' \itemize{
 #' \item adding another source.
 #' \item adding \dQuote{Hobson's Choice} button.
-#' \item removing dependency on \sQuote{ggtern}, replacing with \sQuote{Ternary}.
+#' \item removing dependency on \code{ggtern} package, replacing with \code{Ternary}.
 #' }
 #'
 #' @section \cocktailApp{} Initial Version 0.1.0 (2018-07-05) :
@@ -483,17 +487,18 @@ applylink <- function(title,url) {
 				 title='selected drinks')
 }
 
-#.make_ggtern_plot <- function(tern_df,preing) {
-	#ing <- gsub('\\s','_',preing)
-	#ph <- tern_df %>%
-		#ggtern::ggtern(ggplot2::aes_string(x=ing[1],y=ing[2],z='Other',
-																			 #shape='page_src',label='cocktail',color='rating')) +
-		#ggplot2::geom_point(aes(size=rating),alpha=0.5) +
-		#ggtern::Llab(preing[1]) + ggtern::Tlab(preing[2]) + 
-		#ggplot2::geom_text(hjust='inward',vjust='inward') +
-		#ggplot2::guides(shape=guide_legend(title='source'))
-	#ph
-#}
+#' @importFrom ggtern ggtern Tlab Llab Rlab
+.make_ggtern_plot <- function(tern_df,preing) {
+	ing <- gsub('\\s','_',preing)
+	ph <- tern_df %>%
+		ggtern::ggtern(ggplot2::aes_string(x=ing[1],y=ing[2],z='Other',
+																			 shape='page_src',label='cocktail',color='rating')) +
+		ggplot2::geom_point(aes(size=rating),alpha=0.5) +
+		ggtern::Llab(preing[1]) + ggtern::Tlab(preing[2]) + 
+		ggplot2::geom_text(hjust='inward',vjust='inward') +
+		ggplot2::guides(shape=guide_legend(title='source'))
+	ph
+}
 
 # testing
 #preing <- c('bourbon','benedictine') 
@@ -504,41 +509,45 @@ applylink <- function(title,url) {
 	#mutate(page_src=sample(1:3,n(),replace=TRUE)) 
 #
 
-.make_tern_plot <- function(tern_df,preing) {
-	preing <- c(preing,'Other')
-	TernaryPlot(alab=paste(preing[1],'\u2192'),
-							blab=paste(preing[2],'\u2192'),
-							clab=paste('\u2190',preing[3]),
-							atip=preing[1],btip=preing[2],ctip=preing[3],
-							point='up', lab.cex=0.8, grid.minor.lines = 0,
-							grid.lty='solid', col=rgb(0.9, 0.9, 0.9), grid.col='white', 
-							axis.col=rgb(0.6, 0.6, 0.6), ticks.col=rgb(0.6, 0.6, 0.6),
-							padding=0.08)
-							 #bg=tern_df$rating / 3,
-	coords <- tern_df %>% select(one_of(preing[1]),one_of(preing[2]),one_of(preing[3]))
-	blue0 <- min(min(tern_df$rating),1)
-	blueness <- (tern_df$rating - blue0) / (5 - blue0)
-	redness <- 1 - blueness
-	fac_src <- factor(tern_df$page_src)
-	pch0 <- 22
-	TernaryPoints(coords,
-								col=rgb(red=redness,green=0,blue=blueness,alpha=0.25),
-								bg=rgb(red=redness,green=0,blue=blueness,alpha=0.25),
-								cex=tern_df$rating / 3,
-								pch=pch0+as.numeric(fac_src))
-	TernaryText(coords,
-							tern_df$cocktail,
-							col=rgb(red=redness,green=0,blue=blueness,alpha=0.65),
-							bg=rgb(red=redness,green=0,blue=blueness,alpha=0.65),
-							cex=1)
-	legend('right',
-				 pt.cex=1.8,
-				 pt.bg=rgb(0, 0, 255, 128, NULL, 255), 
-				 pch=pch0+(1:length(levels(fac_src))),
-				 legend=levels(fac_src),
-				 cex=0.8, bty='n')
-}
+#.make_tern_plot <- function(tern_df,preing) {
+	#preing <- c(preing,'Other')
+	#TernaryPlot(alab=paste(preing[1],'\u2192'),
+							#blab=paste(preing[2],'\u2192'),
+							#clab=paste('\u2190',preing[3]),
+							#atip=preing[1],btip=preing[2],ctip=preing[3],
+							#point='up', lab.cex=0.8, grid.minor.lines = 0,
+							#grid.lty='solid', col=rgb(0.9, 0.9, 0.9), grid.col='white', 
+							#axis.col=rgb(0.6, 0.6, 0.6), ticks.col=rgb(0.6, 0.6, 0.6),
+							#padding=0.08)
+							 ##bg=tern_df$rating / 3,
+	#coords <- tern_df %>% select(one_of(preing[1]),one_of(preing[2]),one_of(preing[3]))
+	#blue0 <- min(min(tern_df$rating),1)
+	#blueness <- (tern_df$rating - blue0) / (5 - blue0)
+	#redness <- 1 - blueness
+	#fac_src <- factor(tern_df$page_src)
+	#pch0 <- 22
+	#TernaryPoints(coords,
+								#col=rgb(red=redness,green=0,blue=blueness,alpha=0.25),
+								#bg=rgb(red=redness,green=0,blue=blueness,alpha=0.25),
+								#cex=tern_df$rating / 3,
+								#pch=pch0+as.numeric(fac_src))
+	#TernaryText(coords,
+							#tern_df$cocktail,
+							#col=rgb(red=redness,green=0,blue=blueness,alpha=0.65),
+							#bg=rgb(red=redness,green=0,blue=blueness,alpha=0.65),
+							#cex=1)
+	#legend('right',
+				 #pt.cex=1.8,
+				 #pt.bg=rgb(0, 0, 255, 128, NULL, 255), 
+				 #pch=pch0+(1:length(levels(fac_src))),
+				 #legend=levels(fac_src),
+				 #cex=0.8, bty='n')
+#}
 
+# WAT?
+#  @param input  the shiny server (reactive) input list.
+#  @param output the shiny server (reactive) output list.
+#  @param session  a shiny server session object?
 # Define server logic # FOLDUP
 my_server <- function(input, output, session) {
 	get_both <- reactive({
@@ -666,11 +675,11 @@ my_server <- function(input, output, session) {
 
 		tern_df <- .prepare_ternary(both=final_both(),two_ing=preing)
 		shiny::validate(shiny::need(nrow(tern_df) > 0,paste('No cocktails found with both',preing[1],'and',preing[2])))
-		#ph <- .make_ggtern_plot(tern_df,preing=preing)
-		## see https://github.com/rstudio/shiny/issues/915
-		#print(ph)
-		#NULL
-		.make_tern_plot(tern_df,preing=preing)
+		ph <- .make_ggtern_plot(tern_df,preing=preing)
+		# see https://github.com/rstudio/shiny/issues/915
+		print(ph)
+		NULL
+		#.make_tern_plot(tern_df,preing=preing)
 	},height=900,width=1300)
 	#'drinks_table_rows_all',
 	setBookmarkExclude(c('bookmark',
