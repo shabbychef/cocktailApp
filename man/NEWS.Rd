@@ -9,7 +9,7 @@ News for package \sQuote{cocktailApp}
 \newcommand{\CRANpkg}{\href{https://cran.r-project.org/package=#1}{\pkg{#1}}}
 \newcommand{\cocktailApp}{\CRANpkg{cocktailApp}}
 }
-\section{\cocktailApp{} Version 0.2.1 (2019-07-04) }{
+\section{\cocktailApp{} Version 0.2.1 (2019-07-01) }{
 
 \itemize{
 \item CRAN fix as tests were hanging.

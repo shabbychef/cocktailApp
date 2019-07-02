@@ -1,4 +1,9 @@
 
+2019-07-01 Steven E. Pav <shabbychef@gmail.com>
+* 0.2.1 on CRAN
+* CRAN fix for hanging tests.
+* revert to ggtern.
+
 2018-08-20 Steven E. Pav <shabbychef@gmail.com>
 * removing ggtern in favor of Ternary package.
 
