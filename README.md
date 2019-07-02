@@ -16,15 +16,24 @@ A Shiny app to discover cocktails.
 ## Installation
 
 This package can be installed from 
-[github](https://www.github.com/shabbychef/cocktailApp "cocktailApp")
+[CRAN](https://cran.r-project.org/package=cocktailApp "CRAN page"),
+via [drat](https://github.com/eddelbuettel/drat "drat"), or 
+from [github](https://www.github.com/shabbychef/cocktailApp "cocktailApp")
 via devtools:
 
 
 ```r
+# via CRAN:
+install.packages("cocktailApp")
+# via drat:
+if (require(drat)) {
+    drat:::add("shabbychef")
+    install.packages("cocktailApp")
+}
+# get snapshot from github (may be buggy)
 if (require(devtools)) {
     # latest greatest
-    install_github(repo = "cocktailApp", username = "shabbychef", 
-        ref = "master")
+    install_github("shabbychef/cocktailApp", ref = "master")
 }
 ```
 
@@ -40,6 +49,8 @@ The app can be run in a few ways:
 ## Screenshots
 
 ![](man/figures/Screenshot-mainpage.png)
+![](man/figures/Screenshot-ingredients.png)
+![](man/figures/Screenshot-hobsons.png)
 ![](man/figures/Screenshot-ternary.png)
 ![](man/figures/Screenshot-barplot.png)
 

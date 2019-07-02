@@ -4,8 +4,8 @@ Authors@R: c(person(c("Steven", "E."), "Pav",
     role=c("aut","cre"),
     email="shabbychef@gmail.com",
     comment = c(ORCID = "0000-0002-4197-6195")))
-Version: 0.1.0
-Date: 2018-07-01
+Version: 0.2.0.0002
+Date: 2019-06-30
 License: LGPL-3
 Title: 'shiny' App to Discover Cocktails
 BugReports: https://github.com/shabbychef/cocktailApp/issues
@@ -13,7 +13,7 @@ Description: A 'shiny' app to discover cocktails. The
     app allows one to search for cocktails by ingredient,
     filter on rating, and number of ingredients. The
     package also contains data with the ingredients of
-    nearly 16 thousand cocktails scraped from the web.
+    nearly 26 thousand cocktails scraped from the web.
 Depends: 
     R (>= 3.0.2),
     shiny

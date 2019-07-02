@@ -1,4 +1,16 @@
 
+2018-08-20 Steven E. Pav <shabbychef@gmail.com>
+* removing ggtern in favor of Ternary package.
+
+2018-07-15 Steven E. Pav <shabbychef@gmail.com>
+* adding Hobson's Choice button.
+
+2018-07-07 Steven E. Pav <shabbychef@gmail.com>
+* adding 10K cocktails from drinksmixer.
+
+2018-07-05 Steven E. Pav <shabbychef@gmail.com>
+* 0.1.0 on CRAN
+
 2018-06-15 Steven E. Pav <shabbychef@gmail.com>
 * start work
 

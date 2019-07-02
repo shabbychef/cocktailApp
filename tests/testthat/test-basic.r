@@ -34,78 +34,80 @@ set.char.seed <- function(str) {
 #UNFOLD
 
 library(dplyr)
-context("code runs at all")#FOLDUP
-test_that("shiny bits",{#FOLDUP
-	# travis only?
-	#skip_on_cran()
+context("data as expected")# FOLDUP
 
-	utils::data("cocktails", package="cocktailApp")
+utils::data("cocktails", package="cocktailApp")
+test_that("data_size",{#FOLDUP
 	indat <- cocktails
+	expect_gt(nrow(cocktails),10e4)
+	expect_gt(ncol(cocktails),11)
+	expect_true(all(c('amt','unit','ingredient','cocktail','url','short_ingredient') %in% colnames(cocktails)))
+})#UNFOLD
 
-	recipe_df <- .add_id(indat)
-	cocktail_df <- .distill_info(recipe_df)
+# UNFOLD
+
+context("code runs at all")#FOLDUP
+utils::data("cocktails", package="cocktailApp")
+
+test_that("shiny bits",{#FOLDUP
+	indat <- head(cocktails,1000)
+
+	skip_on_cran()
+	skip_on_travis()
+	expect_error(recipe_df <- .add_id(indat),NA)
+	expect_error(cocktail_df <- .distill_info(recipe_df),NA)
 
 	both <- list(recipe=recipe_df %>% dplyr::select(-cocktail,-rating,-votes,-url),cocktail=cocktail_df)
 
-	both2 <- .filter_ingredients(both,name_regex='sazerac',must_have_ing=c('Bourbon','Averna'),
+	expect_error(both2 <- .filter_ingredients(both,name_regex='sazerac',must_have_ing=c('Bourbon','Averna'),
 															 must_not_have_ing=c(),
-															 logical_sense='OR')
+															 logical_sense='OR'),NA)
 
 	two_ing <- c('Bourbon','Averna')
-	both3 <- .filter_num_ingredients(both2,must_have_ing=two_ing,min_rating=2,max_ingr=10,max_other_ingr=5)
-	both4 <- .filter_tstat(both3,min_t=2,t_zero=1)
-	both5 <- .filter_src(both4,from_sources=c('diffordsguide'))
-	both6 <- .add_description(both5)
+	expect_error(both3 <- .filter_num_ingredients(both2,must_have_ing=two_ing,min_rating=2,max_ingr=10,max_other_ingr=5),NA)
+	expect_error(both4 <- .filter_tstat(both3,min_t=2,t_zero=1),NA)
+	expect_error(both5 <- .filter_src(both4,from_sources=c('diffordsguide')),NA)
+	expect_error(both6 <- .add_description(both5),NA)
 
-	tbl <- .drinks_table(both6)
-	merged <- .merge_both(both6)
-
-	# sentinel
-	expect_true(TRUE)
+	expect_error(tbl <- .drinks_table(both6),NA)
+	expect_error(merged <- .merge_both(both6),NA)
 })#UNFOLD
 test_that('plot stuff',{# FOLDUP
-	utils::data("cocktails", package="cocktailApp")
-	indat <- cocktails
-	both <- .gen_both(indat)
-	both_alt <- .gen_both()
+	indat <- head(cocktails,1000)
+	expect_error(both <- .gen_both(indat),NA)
+	expect_error(both_alt <- .gen_both(),NA)
 
-	both2 <- .filter_ingredients(both,name_regex='sazerac',must_have_ing=c('Bourbon','Averna'),
+	skip_on_cran()
+	skip_on_travis()
+	expect_error(both2 <- .filter_ingredients(both,name_regex='sazerac',must_have_ing=c('Bourbon','Averna'),
 															 must_not_have_ing=c(),
-															 logical_sense='OR')
+															 logical_sense='OR'),NA)
 
 	two_ing <- c('Bourbon','Averna')
-	both3 <- .filter_num_ingredients(both2,must_have_ing=two_ing,min_rating=2,max_ingr=10,max_other_ingr=5)
-	ptern <- .prepare_ternary(both3,two_ing=two_ing)
-	.make_tern_plot(ptern,two_ing)
+	expect_error(both3 <- .filter_num_ingredients(both2,must_have_ing=two_ing,min_rating=2,max_ingr=10,max_other_ingr=5),NA)
+	expect_error(ptern <- .prepare_ternary(both3,two_ing=two_ing),NA)
+	expect_error(.make_ggtern_plot(ptern,two_ing),NA)
 
-	both4 <- .filter_tstat(both3,min_t=2,t_zero=1)
-	both5 <- .filter_src(both4,from_sources=c('diffordsguide'))
-	both6 <- .add_description(both5)
+	expect_error(both4 <- .filter_tstat(both3,min_t=2,t_zero=1),NA)
+	expect_error(both5 <- .filter_src(both4,from_sources=c('diffordsguide')),NA)
+	expect_error(both6 <- .add_description(both5),NA)
 
-	merged <- .merge_both(both6)
-	ph <- .make_bar_plot(merged)
+	expect_error(merged <- .merge_both(both6),NA)
 
-	# sentinel
-	expect_true(TRUE)
+	expect_error(ph <- .make_bar_plot(merged),NA)
 })# UNFOLD
-test_that('correlation and coingredient',{
-	utils::data("cocktails", package="cocktailApp")
-	indat <- cocktails
+test_that('correlation and coingredient',{# FOLDUP
+	indat <- head(cocktails,1000)
 
-	recipe_df <- .add_id(indat)
+	skip_on_cran()
+	skip_on_travis()
+	expect_error(recipe_df <- .add_id(indat),NA)
 
-	rhov1 <- .coingredients(recipe_df)
-	rhov2 <- .ingredient_rho(recipe_df)
-	# sentinel
-	expect_true(TRUE)
-})
+	expect_error(rhov1 <- .coingredients(recipe_df),NA)
+	expect_error(rhov2 <- .ingredient_rho(recipe_df),NA)
+})# UNFOLD
 test_that("call the app?",{#FOLDUP
-	# travis only?
-	#skip_on_cran()
-	blah <- cocktailApp()
-
-	# sentinel
-	expect_true(TRUE)
+	expect_error(blah <- cocktailApp(),NA)
 })#UNFOLD
 # 2FIX: check the effects of NA
 #UNFOLD

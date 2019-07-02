@@ -41,3 +41,4 @@ Rd2.pdf
 submodule_directions.sh
 foo.r
 *.csv.bak
+man/my_server.Rd

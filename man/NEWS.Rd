@@ -9,7 +9,24 @@ News for package \sQuote{cocktailApp}
 \newcommand{\CRANpkg}{\href{https://cran.r-project.org/package=#1}{\pkg{#1}}}
 \newcommand{\cocktailApp}{\CRANpkg{cocktailApp}}
 }
-\section{\cocktailApp{} Initial Version 0.1.0 (2018-07-02) }{
+\section{\cocktailApp{} Version 0.2.1 (2019-07-04) }{
+
+\itemize{
+\item CRAN fix as tests were hanging.
+\item replace \code{Ternary} package with \code{ggtern}.
+}
+}
+
+\section{\cocktailApp{} Version 0.2.0 (2018-08-19) }{
+
+\itemize{
+\item adding another source.
+\item adding \dQuote{Hobson's Choice} button.
+\item removing dependency on \code{ggtern} package, replacing with \code{Ternary}.
+}
+}
+
+\section{\cocktailApp{} Initial Version 0.1.0 (2018-07-05) }{
 
 \itemize{
 \item first CRAN release.

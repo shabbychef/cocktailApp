@@ -21,6 +21,8 @@
 # Author: Steven E. Pav
 # Comments: Steven E. Pav
 
+# no longer @importFrom Ternary TernaryPlot TernaryPoints TernaryText
+
 #' Shiny app to discover cocktails.
 #' 
 #' @section Legal Mumbo Jumbo:
@@ -33,16 +35,19 @@
 #' @template etc
 #'
 #' @import shiny
-#' @importFrom dplyr mutate arrange select filter rename left_join right_join coalesce distinct summarize everything ungroup first
-#' @importFrom utils data
+#' @importFrom dplyr mutate arrange select filter rename left_join right_join coalesce distinct summarize everything ungroup first sample_n one_of
 #' @importFrom ggplot2 ggplot labs coord_flip aes geom_col geom_point geom_text guide_legend
 #' @importFrom shinythemes shinytheme
 #' @importFrom magrittr %>%
 #' @importFrom forcats fct_rev
+#' @importFrom utils data
 #' @importFrom tibble tribble 
 #' @importFrom tidyr spread
-#' @importFrom ggtern ggtern Tlab Llab Rlab
 #' @importFrom stats setNames
+#'
+#' @importFrom graphics legend
+#' @importFrom grDevices rgb
+#'
 #'
 #' @name cocktailApp-package
 #' @rdname cocktailApp-package
@@ -64,7 +69,20 @@ NULL
 #' \newcommand{\CRANpkg}{\href{https://cran.r-project.org/package=#1}{\pkg{#1}}}
 #' \newcommand{\cocktailApp}{\CRANpkg{cocktailApp}}
 #'
-#' @section \cocktailApp{} Initial Version 0.1.0 (2018-07-02) :
+#' @section \cocktailApp{} Version 0.2.1 (2019-07-04) :
+#' \itemize{
+#' \item CRAN fix as tests were hanging.
+#' \item replace \code{Ternary} package with \code{ggtern}.
+#' }
+#'
+#' @section \cocktailApp{} Version 0.2.0 (2018-08-19) :
+#' \itemize{
+#' \item adding another source.
+#' \item adding \dQuote{Hobson's Choice} button.
+#' \item removing dependency on \code{ggtern} package, replacing with \code{Ternary}.
+#' }
+#'
+#' @section \cocktailApp{} Initial Version 0.1.0 (2018-07-05) :
 #' \itemize{
 #' \item first CRAN release.
 #' }
@@ -74,10 +92,11 @@ NULL
 NULL
 
 #' @title Cocktails Data
-#' @description Ingredients of nearly 16 thousand cocktails, scraped from the web.
-#' @format A \code{data.frame} object with around 77,000 rows and 12 columns. The
-#' data were scraped from three websites: Difford's guide, Webtender, and 
-#' Kindred Cocktails, in late 2017.
+#' @description Ingredients of over 26 thousand cocktails, scraped from the web.
+#' @format A \code{data.frame} object with around 117,000 rows and 12 columns. The
+#' data were scraped from four websites: Difford's guide, Webtender, and 
+#' Kindred Cocktails, all scraped in late 2017; and Drinks Mixer, scraped in
+#' mid 2018.
 #'
 #' The columns are defined as follows:
 #' \describe{
@@ -107,7 +126,8 @@ NULL
 #' }
 #' @source Difford's Guide, \url{http://www.diffordsguide.com/},
 #' Webtender, \url{http://www.webtender.com},
-#' Kindred Cocktails, \url{http://kindredcocktails.com}.
+#' Kindred Cocktails, \url{http://kindredcocktails.com},
+#' Drinks Mixer, \url{http://www.drinksmixer.com}.
 #' @note 
 #' The data were scraped from several websites, which falls in a legal gray area.
 #' While, in general, raw factual data can not be copyright, there is a difference between the law and a lawsuit. 
@@ -171,7 +191,7 @@ my_ui <- function(page_title='Drink Schnauzer') {
 	all_source <- unique(sources$url)
 
 	if (!is.null(page_title)) {
-		tp_bits <- titlePanel("Drink Schnauzer")
+		tp_bits <- titlePanel(page_title)
 	} else {
 		tp_bits <- tagList()
 	}
@@ -200,6 +220,8 @@ my_ui <- function(page_title='Drink Schnauzer') {
 				selectInput("must_not_have_ing","Must Not Have:",choices=ingr,selected=c(),multiple=TRUE),
 				selectInput("from_sources","Sources:",choices=all_source,selected=all_source[grepl('diffords|kindred',all_source)],multiple=TRUE),
 				textInput("name_regex","Name Regex:",value='',placeholder='^sazerac'),
+				helpText('Select for random cocktails:'),
+				checkboxInput("hobsons","Hobson's Choice!",value=FALSE),
 				hr(),
 				sliderInput("max_ingr","Maximum Ingredients:",sep='',min=1,max=20,value=6),
 				sliderInput("max_other_ingr","Maximum Unlisted Ingredients:",sep='',min=1,max=20,value=6),
@@ -291,7 +313,7 @@ applylink <- function(title,url) {
 	list(recipe=recipe_df %>% dplyr::select(-cocktail,-rating,-votes,-url),cocktail=cocktail_df)
 }
 
-.filter_ingredients <- function(both,name_regex,must_have_ing,must_not_have_ing,logical_sense=c('AND','OR')) {
+.filter_ingredients <- function(both,name_regex,must_have_ing,must_not_have_ing,logical_sense=c('AND','OR'),extra_ids=NULL) {
 	logical_sense <- match.arg(logical_sense)
 
 	if (nzchar(name_regex)) {
@@ -303,6 +325,13 @@ applylink <- function(title,url) {
 	} else {
 		# empty
 		match_name <- tibble::tribble(~cocktail_id,~matches_name)
+	}
+	if (!is.null(extra_ids)) {
+		more_match <- both$cocktail %>%
+			dplyr::filter(cocktail_id %in% extra_ids) %>%
+			dplyr::select(cocktail_id) %>%
+			dplyr::mutate(matches_name=TRUE) 
+		match_name <- match_name %>% rbind(more_match)
 	}
 
 	new_recipe <- both$recipe %>%
@@ -459,7 +488,8 @@ applylink <- function(title,url) {
 				 title='selected drinks')
 }
 
-.make_tern_plot <- function(tern_df,preing) {
+#' @importFrom ggtern ggtern Tlab Llab Rlab
+.make_ggtern_plot <- function(tern_df,preing) {
 	ing <- gsub('\\s','_',preing)
 	ph <- tern_df %>%
 		ggtern::ggtern(ggplot2::aes_string(x=ing[1],y=ing[2],z='Other',
@@ -471,7 +501,54 @@ applylink <- function(title,url) {
 	ph
 }
 
+# testing
+#preing <- c('bourbon','benedictine') 
+#tern_df <- data.frame(bourbon=runif(50,max=0.5),benedictine=runif(50,max=0.3)) %>% 
+	#mutate(Other=1-bourbon-benedictine) %>%
+	#mutate(rating=sample(2:5,n(),replace=TRUE)) %>%
+	#mutate(cocktail=sample(paste0('xy',letters),n(),replace=TRUE)) %>%
+	#mutate(page_src=sample(1:3,n(),replace=TRUE)) 
+#
 
+#.make_tern_plot <- function(tern_df,preing) {
+	#preing <- c(preing,'Other')
+	#TernaryPlot(alab=paste(preing[1],'\u2192'),
+							#blab=paste(preing[2],'\u2192'),
+							#clab=paste('\u2190',preing[3]),
+							#atip=preing[1],btip=preing[2],ctip=preing[3],
+							#point='up', lab.cex=0.8, grid.minor.lines = 0,
+							#grid.lty='solid', col=rgb(0.9, 0.9, 0.9), grid.col='white', 
+							#axis.col=rgb(0.6, 0.6, 0.6), ticks.col=rgb(0.6, 0.6, 0.6),
+							#padding=0.08)
+							 ##bg=tern_df$rating / 3,
+	#coords <- tern_df %>% select(one_of(preing[1]),one_of(preing[2]),one_of(preing[3]))
+	#blue0 <- min(min(tern_df$rating),1)
+	#blueness <- (tern_df$rating - blue0) / (5 - blue0)
+	#redness <- 1 - blueness
+	#fac_src <- factor(tern_df$page_src)
+	#pch0 <- 22
+	#TernaryPoints(coords,
+								#col=rgb(red=redness,green=0,blue=blueness,alpha=0.25),
+								#bg=rgb(red=redness,green=0,blue=blueness,alpha=0.25),
+								#cex=tern_df$rating / 3,
+								#pch=pch0+as.numeric(fac_src))
+	#TernaryText(coords,
+							#tern_df$cocktail,
+							#col=rgb(red=redness,green=0,blue=blueness,alpha=0.65),
+							#bg=rgb(red=redness,green=0,blue=blueness,alpha=0.65),
+							#cex=1)
+	#legend('right',
+				 #pt.cex=1.8,
+				 #pt.bg=rgb(0, 0, 255, 128, NULL, 255), 
+				 #pch=pch0+(1:length(levels(fac_src))),
+				 #legend=levels(fac_src),
+				 #cex=0.8, bty='n')
+#}
+
+# WAT?
+#  @param input  the shiny server (reactive) input list.
+#  @param output the shiny server (reactive) output list.
+#  @param session  a shiny server session object?
 # Define server logic # FOLDUP
 my_server <- function(input, output, session) {
 	get_both <- reactive({
@@ -494,7 +571,7 @@ my_server <- function(input, output, session) {
 	})
 
 	filter_ingr <- reactive({
-		.filter_ingredients(both=get_both(),name_regex=input$name_regex,
+		.filter_ingredients(both=get_both(),name_regex=input$name_regex,extra_ids=hobsons_choice$ids,
 												must_have_ing=input$must_have_ing,
 												must_not_have_ing=input$must_not_have_ing,
 												logical_sense=input$logical_sense)
@@ -517,6 +594,8 @@ my_server <- function(input, output, session) {
 	final_merged <- reactive({
 		.merge_both(both=final_both())
 	})
+	selectable <- reactive({
+	})
 
 	# if the user selects any drinks from the table, 
 	# take their ingredients
@@ -531,6 +610,23 @@ my_server <- function(input, output, session) {
 		otdat
 	})
 
+	hobsons_choice <- reactiveValues(ids=NULL)
+	
+	observeEvent(input$hobsons,{
+		if (input$hobsons) {
+			both <- .filter_num_ingredients(both=get_both(),must_have_ing=c(),
+															min_rating=input$min_rating,max_ingr=input$max_ingr,
+															max_other_ingr=input$max_other_ingr) 
+			both <- .filter_tstat(both=both,min_t=input$min_tstat,t_zero=input$t_zero)
+			both <- .filter_src(both=both,from_sources=input$from_sources)
+			eligible <- both$cocktail %>%
+				distinct(cocktail_id) %>%
+				sample_n(size=5,replace=FALSE)
+			hobsons_choice$ids <- eligible$cocktail_id
+		} else {
+			hobsons_choice$ids <- NULL
+		}
+	})
 	# table of comparables #FOLDUP
 	output$drinks_table <- DT::renderDataTable({
 		otdat <- .drinks_table(both=final_both())
@@ -549,7 +645,7 @@ my_server <- function(input, output, session) {
 	server=TRUE)#UNFOLD
 	# table of suggestions #FOLDUP
 	output$suggestions_table <- DT::renderDataTable({
-		selco <- suggested_ingr()
+		selco <- suggested_ingr() 
 
 		# for this javascript shiznit, recall that javascript starts
 		# counting at zero!
@@ -571,7 +667,7 @@ my_server <- function(input, output, session) {
 	})
 	output$ingredients_table <- renderTable({
 		#	may have to select down some more.
-		retv <- selected_drinks() %>% select(-cocktail_id,-rating)
+		retv <- selected_drinks() %>% dplyr::select(cocktail,amt,unit,ingredient)
 	},striped=TRUE,width='100%')
 
 	output$selected_ingredients_tern_plot <- renderPlot({
@@ -580,15 +676,16 @@ my_server <- function(input, output, session) {
 
 		tern_df <- .prepare_ternary(both=final_both(),two_ing=preing)
 		shiny::validate(shiny::need(nrow(tern_df) > 0,paste('No cocktails found with both',preing[1],'and',preing[2])))
-		ph <- .make_tern_plot(tern_df,preing=preing)
-
+		ph <- .make_ggtern_plot(tern_df,preing=preing)
 		# see https://github.com/rstudio/shiny/issues/915
 		print(ph)
 		NULL
+		#.make_tern_plot(tern_df,preing=preing)
 	},height=900,width=1300)
-
-
-	setBookmarkExclude(c('bookmark'))
+	#'drinks_table_rows_all',
+	setBookmarkExclude(c('bookmark',
+											 'drinks_table_cell_clicked',
+											 'drinks_table_row_last_clicked'))
 	observeEvent(input$bookmark,{ session$doBookmark() })
 }
 
@@ -619,18 +716,21 @@ my_server <- function(input, output, session) {
 #' occurs with the selected ingredient, as measured by the number of
 #' cocktails, and by \sQuote{rho}, which is like a correlation based
 #' on the proportion.
+#' 
+#' A checkbox labelled, \dQuote{Hobson's Choice} allows you to populate
+#' the cocktail table with five random cocktails that meet the numerical
+#' filters on number of ingredients, rating, and so on, but which do not
+#' meet the ingredient selections. Unselecting and re-selecting the
+#' checkbox selects a new set of random cocktails. Note that the random
+#' selection is not responsive to changes in the numerical filters.
 #'
 #' @section Screenshots:
 #'
 #' The main page looks as follows. In this case the user has selected
-#' two ingredients, \sQuote{Benedictine} and \sQuote{cognac}. This
-#' populates the main table on the right. The user then selected
-#' three rows of this table, which causes the ingredients table
-#' on the lower right to be populated with the recipes of the
-#' selected cocktails. Instead one could click on the linked
-#' cocktail names to be taken to the upstream source of the recipe,
-#' which is recommended since those pages typically have better
-#' instructions.
+#' two ingredients, \sQuote{Benedictine} and \sQuote{Bourbon}. The
+#' user has modified some of the numeric filters resulting in only
+#' six cocktails in the cocktail table on the right in the main
+#' tab.
 #'
 #' \if{html}{
 #' \figure{Screenshot-mainpage.png}{options: width="100\%" alt="Screenshot: landing page of app"}
@@ -639,8 +739,24 @@ my_server <- function(input, output, session) {
 #' \figure{Screenshot-mainpage.png}{options: width=14cm}
 #' }
 #'
+#' In the next screenshot, the user has selected two of
+#' the rows of the cocktail table,
+#' which causes the ingredients table
+#' on the lower right to be populated with the recipes of the
+#' selected cocktails. Instead one could click on the linked
+#' cocktail names to be taken to the upstream source of the recipe,
+#' which is recommended since those pages typically have better
+#' instructions.
+#'
+#' \if{html}{
+#' \figure{Screenshot-ingredients.png}{options: width="100\%" alt="Screenshot: landing page of app, with selected cocktails"}
+#' }
+#' \if{latex}{
+#' \figure{Screenshot-ingredients.png}{options: width=14cm}
+#' }
+#'
 #' In the following screenshot, the user has selected two ingredients,
-#' \sQuote{bourbon} and \sQuote{Averna}, then clicked on the
+#' \sQuote{Benedictine} and \sQuote{bourbon}, then clicked on the
 #' the main table, then selected the \sQuote{plots} tab. This
 #' shows a bar plot of the proportions of all ingredients
 #' in all the selected cocktails.
@@ -666,11 +782,21 @@ my_server <- function(input, output, session) {
 #' \figure{Screenshot-ternary.png}{options: width=14cm}
 #' }
 #'
+#' In this screenshot, the user has checked the \dQuote{Hobson's Choice}
+#' box, which adds 5 random cocktails to the cocktail table.
+#'
+#' \if{html}{
+#' \figure{Screenshot-hobsons.png}{options: width="100\%" alt="Screenshot: main page with Hobsons choice"}
+#' }
+#' \if{latex}{
+#' \figure{Screenshot-hobsons.png}{options: width=14cm}
+#' }
 #'
 #' @return Runs the \code{shiny} app.
 #'
 #' @param page_title  an optional page title for the app. A \code{NULL} value
 #' causes no page title to be used.
+#' @inheritParams shiny::shinyApp
 #' @keywords shiny
 #' @template etc
 #' @name cocktailApp
@@ -680,8 +806,10 @@ my_server <- function(input, output, session) {
 #' cocktailApp()
 #' }
 #' @export
-cocktailApp <- function(page_title='Drink Schnauzer') {
-	shinyApp(ui=my_ui(page_title=page_title), server=my_server)
+cocktailApp <- function(page_title='Drink Schnauzer',enableBookmarking='url') {
+	shinyApp(ui=function(request){ my_ui(page_title=page_title) },  # to enable bookmarking, do this rigamarole.
+					 server=my_server,
+					 enableBookmarking=enableBookmarking)
 }
 # importFrom DT dataTableOutput renderDataTable datatable 
 

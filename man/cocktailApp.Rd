@@ -4,11 +4,18 @@
 \alias{cocktailApp}
 \title{cocktailApp .}
 \usage{
-cocktailApp(page_title = "Drink Schnauzer")
+cocktailApp(page_title = "Drink Schnauzer", enableBookmarking = "url")
 }
 \arguments{
 \item{page_title}{an optional page title for the app. A \code{NULL} value
 causes no page title to be used.}
+
+\item{enableBookmarking}{Can be one of \code{"url"}, \code{"server"}, or
+\code{"disable"}. This is equivalent to calling the
+\code{\link{enableBookmarking}()} function just before calling
+\code{shinyApp()}. With the default value (\code{NULL}), the app will
+respect the setting from any previous calls to \code{enableBookmarking()}.
+See \code{\link{enableBookmarking}} for more information.}
 }
 \value{
 Runs the \code{shiny} app.
@@ -35,19 +42,22 @@ selected ingredients. A co-ingredient is an ingredient that commonly
 occurs with the selected ingredient, as measured by the number of
 cocktails, and by \sQuote{rho}, which is like a correlation based
 on the proportion.
+
+A checkbox labelled, \dQuote{Hobson's Choice} allows you to populate
+the cocktail table with five random cocktails that meet the numerical
+filters on number of ingredients, rating, and so on, but which do not
+meet the ingredient selections. Unselecting and re-selecting the
+checkbox selects a new set of random cocktails. Note that the random
+selection is not responsive to changes in the numerical filters.
 }
 \section{Screenshots}{
 
 
 The main page looks as follows. In this case the user has selected
-two ingredients, \sQuote{Benedictine} and \sQuote{cognac}. This
-populates the main table on the right. The user then selected
-three rows of this table, which causes the ingredients table
-on the lower right to be populated with the recipes of the
-selected cocktails. Instead one could click on the linked
-cocktail names to be taken to the upstream source of the recipe,
-which is recommended since those pages typically have better
-instructions.
+two ingredients, \sQuote{Benedictine} and \sQuote{Bourbon}. The
+user has modified some of the numeric filters resulting in only
+six cocktails in the cocktail table on the right in the main
+tab.
 
 \if{html}{
 \figure{Screenshot-mainpage.png}{options: width="100\%" alt="Screenshot: landing page of app"}
@@ -56,8 +66,24 @@ instructions.
 \figure{Screenshot-mainpage.png}{options: width=14cm}
 }
 
+In the next screenshot, the user has selected two of
+the rows of the cocktail table,
+which causes the ingredients table
+on the lower right to be populated with the recipes of the
+selected cocktails. Instead one could click on the linked
+cocktail names to be taken to the upstream source of the recipe,
+which is recommended since those pages typically have better
+instructions.
+
+\if{html}{
+\figure{Screenshot-ingredients.png}{options: width="100\%" alt="Screenshot: landing page of app, with selected cocktails"}
+}
+\if{latex}{
+\figure{Screenshot-ingredients.png}{options: width=14cm}
+}
+
 In the following screenshot, the user has selected two ingredients,
-\sQuote{bourbon} and \sQuote{Averna}, then clicked on the
+\sQuote{Benedictine} and \sQuote{bourbon}, then clicked on the
 the main table, then selected the \sQuote{plots} tab. This
 shows a bar plot of the proportions of all ingredients
 in all the selected cocktails.
@@ -81,6 +107,16 @@ ingredients.
 }
 \if{latex}{
 \figure{Screenshot-ternary.png}{options: width=14cm}
+}
+
+In this screenshot, the user has checked the \dQuote{Hobson's Choice}
+box, which adds 5 random cocktails to the cocktail table.
+
+\if{html}{
+\figure{Screenshot-hobsons.png}{options: width="100\%" alt="Screenshot: main page with Hobsons choice"}
+}
+\if{latex}{
+\figure{Screenshot-hobsons.png}{options: width=14cm}
 }
 }
 
