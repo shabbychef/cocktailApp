@@ -162,7 +162,7 @@ globalVariables(c('cocktails','votes','rating','cocktail','proportion','url','sh
 
 
 # Define UI for ...
-my_ui <- function(page_title='Drink Schnauzer') {
+my_ui <- function(page_title='Drink Schnauzer') {  # nocov start
 	utils::data("cocktails", package="cocktailApp")
 	indat <- cocktails
 
@@ -265,7 +265,7 @@ my_ui <- function(page_title='Drink Schnauzer') {
 		)  # fluidPage#UNFOLD
 	)  # shinyUI
 	
-}  
+}  # nocov end
 
 
 .applylink <- function(title,url) {
@@ -550,7 +550,7 @@ applylink <- function(title,url) {
 #  @param output the shiny server (reactive) output list.
 #  @param session  a shiny server session object?
 # Define server logic # FOLDUP
-my_server <- function(input, output, session) {
+my_server <- function(input, output, session) { # nocov start
 	get_both <- reactive({
 		utils::data("cocktails", package="cocktailApp")
 		both <- .gen_both(cocktails)
@@ -687,7 +687,7 @@ my_server <- function(input, output, session) {
 											 'drinks_table_cell_clicked',
 											 'drinks_table_row_last_clicked'))
 	observeEvent(input$bookmark,{ session$doBookmark() })
-}
+} # nocov end
 
 # UNFOLD
 
