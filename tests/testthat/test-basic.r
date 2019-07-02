@@ -34,12 +34,23 @@ set.char.seed <- function(str) {
 #UNFOLD
 
 library(dplyr)
-context("code runs at all")#FOLDUP
+context("data as expected")# FOLDUP
 
+utils::data("cocktails", package="cocktailApp")
+test_that("data_size",{#FOLDUP
+	indat <- cocktails
+	expect_gt(nrow(cocktails),10e4)
+	expect_gt(ncol(cocktails),11)
+	expect_true(all(c('amt','unit','ingredient','cocktail','url','short_ingredient') %in% colnames(cocktails)))
+})#UNFOLD
+
+# UNFOLD
+
+context("code runs at all")#FOLDUP
 utils::data("cocktails", package="cocktailApp")
 
 test_that("shiny bits",{#FOLDUP
-	indat <- cocktails
+	indat <- head(cocktails,1000)
 
 	skip_on_cran()
 	skip_on_travis()
@@ -62,7 +73,7 @@ test_that("shiny bits",{#FOLDUP
 	expect_error(merged <- .merge_both(both6),NA)
 })#UNFOLD
 test_that('plot stuff',{# FOLDUP
-	indat <- cocktails
+	indat <- head(cocktails,1000)
 	expect_error(both <- .gen_both(indat),NA)
 	expect_error(both_alt <- .gen_both(),NA)
 
@@ -85,8 +96,8 @@ test_that('plot stuff',{# FOLDUP
 
 	expect_error(ph <- .make_bar_plot(merged),NA)
 })# UNFOLD
-test_that('correlation and coingredient',{
-	indat <- cocktails
+test_that('correlation and coingredient',{# FOLDUP
+	indat <- head(cocktails,1000)
 
 	skip_on_cran()
 	skip_on_travis()
@@ -94,7 +105,7 @@ test_that('correlation and coingredient',{
 
 	expect_error(rhov1 <- .coingredients(recipe_df),NA)
 	expect_error(rhov2 <- .ingredient_rho(recipe_df),NA)
-})
+})# UNFOLD
 test_that("call the app?",{#FOLDUP
 	expect_error(blah <- cocktailApp(),NA)
 })#UNFOLD
