@@ -288,13 +288,15 @@ applylink <- function(title,url) {
 # creates information about cocktails from the recipe data frame
 .distill_info <- function(recipe_df) {
 	cocktail_df <- recipe_df %>%
+		dplyr::mutate(isfl=(unit=='fl oz')) %>%
 		dplyr::group_by(cocktail_id) %>%
-		dplyr::summarize(cocktail=dplyr::first(cocktail),
-										 rating=dplyr::first(rating),
-										 votes=as.numeric(dplyr::first(votes)),
-										 url=dplyr::first(url),
-										 tot_ingr=sum(grepl('fl oz',unit))) %>%
+			dplyr::summarize(cocktail=dplyr::first(cocktail),
+											 rating=dplyr::first(rating),
+											 votes=dplyr::first(votes),
+											 url=dplyr::first(url),
+											 tot_ingr=sum(isfl)) %>%
 		dplyr::ungroup() %>%
+		mutate(votes=as.numeric(votes)) %>%
 		dplyr::mutate(page_src=gsub('^http://(www.)?(.+).com/.+$','\\2',url))
 }
 
@@ -334,16 +336,36 @@ applylink <- function(title,url) {
 		match_name <- match_name %>% rbind(more_match)
 	}
 
-	new_recipe <- both$recipe %>%
-		dplyr::group_by(cocktail_id) %>%
-			dplyr::mutate(has_or_must=any(short_ingredient %in% must_have_ing),
-										has_and_must=all(must_have_ing %in% short_ingredient),
-										has_not_must=any(short_ingredient %in% must_not_have_ing)) %>%
-		dplyr::ungroup() %>%
+	if (logical_sense=='AND') {
+		ok_by_ing <- both$recipe %>%
+			mutate(bad_ing=(short_ingredient %in% must_not_have_ing)) %>%
+			dplyr::group_by(cocktail_id) %>%
+				dplyr::summarize(ck_ok = all(must_have_ing %in% short_ingredient) & !any(bad_ing)) %>%
+			dplyr::ungroup()
+	} else {
+		ok_by_ing <- both$recipe %>%
+			mutate(has_ing=(short_ingredient %in% must_have_ing),
+						 bad_ing=(short_ingredient %in% must_not_have_ing)) %>%
+			dplyr::group_by(cocktail_id) %>%
+				dplyr::summarize(ck_ok=any(has_ing) & !any(bad_ing)) %>%
+			dplyr::ungroup() 
+	}
+
+  new_recipe <- both$recipe %>%
 		dplyr::left_join(match_name,by='cocktail_id') %>%
 		dplyr::mutate(matches_name=coalesce(matches_name,FALSE)) %>%
-		dplyr::filter( (!has_not_must & ((logical_sense=='AND') | has_or_must) & ((logical_sense=='OR') | has_and_must)) | matches_name) %>%
-		dplyr::select(-has_and_must,-has_not_must,-has_or_must,-matches_name)
+    left_join(ok_by_ing,by='cocktail_id') %>%
+		dplyr::filter( ck_ok | matches_name ) %>%
+		dplyr::select(-matches_name)
+
+  new_recipe <- rbind(both$recipe %>%
+		dplyr::right_join(match_name,by='cocktail_id') %>%
+		dplyr::select(-matches_name),
+    ok_by_ing %>%
+    dplyr::filter(ck_ok) %>%
+    dplyr::select(-ck_ok) %>%
+    dplyr::left_join(both$recipe,by='cocktail_id')) 
+
 	new_cocktail <- both$cocktail %>%
 		dplyr::right_join(new_recipe %>% dplyr::distinct(cocktail_id),by='cocktail_id')
 
@@ -389,7 +411,7 @@ applylink <- function(title,url) {
 
 .add_description <- function(both) {
 	descdat <- both$recipe %>%
-		dplyr::filter(grepl('fl oz',unit)) %>%
+		dplyr::filter(unit=='fl oz') %>%
 		dplyr::arrange(dplyr::desc(amt)) %>%
 		dplyr::group_by(cocktail_id) %>%
 			dplyr::summarize(description=paste0(paste0(short_ingredient,collapse=', '),'.')) %>%
@@ -404,7 +426,7 @@ applylink <- function(title,url) {
 	both$recipe %>%
 		dplyr::left_join(both$cocktail,by='cocktail_id') %>%
 		dplyr::select(cocktail,rating,amt,unit,ingredient,everything()) %>%
-		dplyr::arrange(dplyr::desc(rating),cocktail,dplyr::desc(as.numeric(grepl('fl oz',unit))),dplyr::desc(amt))
+		dplyr::arrange(dplyr::desc(rating),cocktail,dplyr::desc(as.numeric(unit=='fl oz')),dplyr::desc(amt))
 }
 
 .drinks_table <- function(both) {
@@ -477,7 +499,7 @@ applylink <- function(title,url) {
 .make_bar_plot <- function(both_df) {
 	#facet_grid(.~rating) + 
 	ph <- both_df %>%
-		dplyr::filter(grepl('fl oz',unit)) %>%
+		dplyr::filter(unit=='fl oz') %>%
 		dplyr::arrange(dplyr::desc(rating)) %>%
 		mutate(pct_amt=100*proportion) %>%
 		ggplot(aes(ingredient,pct_amt,fill=cocktail)) + 

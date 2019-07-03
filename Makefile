@@ -10,8 +10,8 @@
 VMAJOR 						 = 0
 VMINOR 						 = 2
 VPATCH  					 = 1
-#VDEV 							 = .0002
-VDEV 							 =
+VDEV 							 = .0001
+#VDEV 							 =
 PKG_NAME 					:= cocktailApp
 
 RPKG_USES_RCPP 		:= 0
