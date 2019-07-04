@@ -336,16 +336,20 @@ applylink <- function(title,url) {
 		match_name <- match_name %>% rbind(more_match)
 	}
 
+	# for the moment, these operations are terribly slow in dplyr 0.8.2
+	# cf https://github.com/tidyverse/dplyr/issues/4458
+	# when we upgrade to 0.8.3, it is worth timing the alternatives
+	# on this.
+	ok_by_ing <- both$recipe %>%
+		dplyr::mutate(bad_ing=(short_ingredient %in% must_not_have_ing)) 
 	if (logical_sense=='AND') {
-		ok_by_ing <- both$recipe %>%
-			mutate(bad_ing=(short_ingredient %in% must_not_have_ing)) %>%
+		ok_by_ing <- ok_by_ing %>%
 			dplyr::group_by(cocktail_id) %>%
 				dplyr::summarize(ck_ok = all(must_have_ing %in% short_ingredient) & !any(bad_ing)) %>%
 			dplyr::ungroup()
 	} else {
-		ok_by_ing <- both$recipe %>%
-			mutate(has_ing=(short_ingredient %in% must_have_ing),
-						 bad_ing=(short_ingredient %in% must_not_have_ing)) %>%
+		ok_by_ing <- ok_by_ing %>%
+			dplyr::mutate(has_ing=(short_ingredient %in% must_have_ing)) %>%
 			dplyr::group_by(cocktail_id) %>%
 				dplyr::summarize(ck_ok=any(has_ing) & !any(bad_ing)) %>%
 			dplyr::ungroup() 
@@ -354,7 +358,7 @@ applylink <- function(title,url) {
   new_recipe <- both$recipe %>%
 		dplyr::left_join(match_name,by='cocktail_id') %>%
 		dplyr::mutate(matches_name=coalesce(matches_name,FALSE)) %>%
-    left_join(ok_by_ing,by='cocktail_id') %>%
+    dplyr::left_join(ok_by_ing,by='cocktail_id') %>%
 		dplyr::filter( ck_ok | matches_name ) %>%
 		dplyr::select(-matches_name)
 
