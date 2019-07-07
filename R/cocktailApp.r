@@ -315,7 +315,8 @@ applylink <- function(title,url) {
 	list(recipe=recipe_df %>% dplyr::select(-cocktail,-rating,-votes,-url),cocktail=cocktail_df)
 }
 
-.filter_ingredients <- function(both,name_regex,must_have_ing,must_not_have_ing,logical_sense=c('AND','OR'),extra_ids=NULL) {
+.filter_ingredients <- function(both,name_regex,must_have_ing,must_not_have_ing,
+																ing_regex='',logical_sense=c('AND','OR'),extra_ids=NULL) {
 	logical_sense <- match.arg(logical_sense)
 
 	if (nzchar(name_regex)) {
@@ -342,33 +343,40 @@ applylink <- function(title,url) {
 	# on this.
 	ok_by_ing <- both$recipe %>%
 		dplyr::mutate(bad_ing=(short_ingredient %in% must_not_have_ing)) 
-	if (logical_sense=='AND') {
+
+	# search regex by ingredient
+	if (nzchar(ing_regex)) {
 		ok_by_ing <- ok_by_ing %>%
-			dplyr::group_by(cocktail_id) %>%
-				dplyr::summarize(ck_ok = all(must_have_ing %in% short_ingredient) & !any(bad_ing)) %>%
-			dplyr::ungroup()
+			dplyr::mutate(match_re_ing=grepl(pattern=ing_regex,x=short_ingredient,ignore.case=TRUE,perl=TRUE,fixed=FALSE)) 
 	} else {
 		ok_by_ing <- ok_by_ing %>%
-			dplyr::mutate(has_ing=(short_ingredient %in% must_have_ing)) %>%
-			dplyr::group_by(cocktail_id) %>%
-				dplyr::summarize(ck_ok=any(has_ing) & !any(bad_ing)) %>%
-			dplyr::ungroup() 
+			dplyr::mutate(match_re_ing=FALSE)
+	}
+	if ((length(must_have_ing) > 0) || nzchar(ing_regex)) {
+		if ((logical_sense=='AND') && (length(must_have_ing) > 1)) {   # n.b. AND with one term is the same as OR.
+			ok_by_ing <- ok_by_ing %>%
+				dplyr::group_by(cocktail_id) %>%
+					dplyr::summarize(ck_ok = (all(must_have_ing %in% short_ingredient) | any(match_re_ing)) & !any(bad_ing)) %>%
+				dplyr::ungroup()
+		} else {
+			ok_by_ing <- ok_by_ing %>%
+				dplyr::mutate(has_ing=(short_ingredient %in% must_have_ing)) %>%
+				dplyr::group_by(cocktail_id) %>%
+					dplyr::summarize(ck_ok=any(has_ing | match_re_ing) & !any(bad_ing)) %>%
+				dplyr::ungroup() 
+		}
+	} else {
+		# empty
+		ok_by_ing <- tibble::tribble(~cocktail_id,~ck_ok)
 	}
 
-  new_recipe <- both$recipe %>%
-		dplyr::left_join(match_name,by='cocktail_id') %>%
-		dplyr::mutate(matches_name=coalesce(matches_name,FALSE)) %>%
-    dplyr::left_join(ok_by_ing,by='cocktail_id') %>%
-		dplyr::filter( ck_ok | matches_name ) %>%
-		dplyr::select(-matches_name)
-
-  new_recipe <- rbind(both$recipe %>%
-		dplyr::right_join(match_name,by='cocktail_id') %>%
-		dplyr::select(-matches_name),
-    ok_by_ing %>%
-    dplyr::filter(ck_ok) %>%
-    dplyr::select(-ck_ok) %>%
-    dplyr::left_join(both$recipe,by='cocktail_id')) 
+  new_recipe <- match_name %>%
+		dplyr::left_join(both$recipe,by='cocktail_id') %>%
+		dplyr::select(-matches_name) %>%
+		rbind(ok_by_ing %>%
+					dplyr::filter(ck_ok) %>%
+					dplyr::select(-ck_ok) %>%
+					dplyr::left_join(both$recipe,by='cocktail_id')) 
 
 	new_cocktail <- both$cocktail %>%
 		dplyr::right_join(new_recipe %>% dplyr::distinct(cocktail_id),by='cocktail_id')

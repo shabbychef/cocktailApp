@@ -72,6 +72,42 @@ test_that("shiny bits",{#FOLDUP
 	expect_error(tbl <- .drinks_table(both6),NA)
 	expect_error(merged <- .merge_both(both6),NA)
 })#UNFOLD
+test_that("filter ingredients",{#FOLDUP
+	indat <- head(cocktails,100)
+
+	expect_error(recipe_df <- .add_id(indat),NA)
+	expect_error(cocktail_df <- .distill_info(recipe_df),NA)
+
+	both <- list(recipe=recipe_df %>% dplyr::select(-cocktail,-rating,-votes,-url),cocktail=cocktail_df)
+
+	expect_error(test1 <- .filter_ingredients(both,name_regex='sazerac',
+																						must_have_ing=c('Bourbon','Averna'),
+																						must_not_have_ing=c(),
+																						logical_sense='OR'),
+							 NA)
+	expect_error(test2 <- .filter_ingredients(both,name_regex='sazerac',
+																						must_have_ing=c('Bourbon'),
+																						must_not_have_ing=c('Averna'),
+																						logical_sense='OR'),
+							 NA)
+	expect_error(test3 <- .filter_ingredients(both,name_regex='sazerac',
+																						must_have_ing=c('Bourbon'),
+																						must_not_have_ing=c('Averna'),
+																						logical_sense='AND'),
+							 NA)
+	expect_error(test4 <- .filter_ingredients(both,name_regex='',
+																						must_have_ing=c(),
+																						must_not_have_ing=c(),
+																						ing_regex='hartreus',
+																						logical_sense='OR'),
+							 NA)
+	expect_error(test5 <- .filter_ingredients(both,name_regex='',
+																						must_have_ing=c(),
+																						must_not_have_ing=c('Benedictine'),
+																						ing_regex='hartreus',
+																						logical_sense='OR'),
+							 NA)
+})#UNFOLD
 test_that('plot stuff',{# FOLDUP
 	indat <- head(cocktails,200)
 	expect_error(both <- .gen_both(indat),NA)
