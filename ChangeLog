@@ -1,4 +1,10 @@
 
+2019-0?-?? Steven E. Pav <shabbychef@gmail.com>
+* 0.2.2 on CRAN
+* merge some short ingredients.
+* fix some units in webtender data.
+* search by ingredient regex.
+
 2019-07-01 Steven E. Pav <shabbychef@gmail.com>
 * 0.2.1 on CRAN
 * CRAN fix for hanging tests.

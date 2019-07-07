@@ -69,6 +69,13 @@ NULL
 #' \newcommand{\CRANpkg}{\href{https://cran.r-project.org/package=#1}{\pkg{#1}}}
 #' \newcommand{\cocktailApp}{\CRANpkg{cocktailApp}}
 #'
+#' @section \cocktailApp{} Version 0.2.2 (2019-0?-??) :
+#' \itemize{
+#' \item merge some short ingredients.
+#' \item fix some units in webtender data.
+#' \item search by ingredient regex.
+#' }
+#'
 #' @section \cocktailApp{} Version 0.2.1 (2019-07-01) :
 #' \itemize{
 #' \item CRAN fix as tests were hanging.
@@ -220,6 +227,7 @@ my_ui <- function(page_title='Drink Schnauzer') {  # nocov start
 				selectInput("must_not_have_ing","Must Not Have:",choices=ingr,selected=c(),multiple=TRUE),
 				selectInput("from_sources","Sources:",choices=all_source,selected=all_source[grepl('diffords|kindred',all_source)],multiple=TRUE),
 				textInput("name_regex","Name Regex:",value='',placeholder='^sazerac'),
+				textInput("ing_regex","Ingredient Regex:",value='',placeholder='^[Cc]hartreus'),
 				helpText('Select for random cocktails:'),
 				checkboxInput("hobsons","Hobson's Choice!",value=FALSE),
 				hr(),
@@ -608,6 +616,7 @@ my_server <- function(input, output, session) { # nocov start
 		.filter_ingredients(both=get_both(),name_regex=input$name_regex,extra_ids=hobsons_choice$ids,
 												must_have_ing=input$must_have_ing,
 												must_not_have_ing=input$must_not_have_ing,
+												ing_regex=input$ing_regex,
 												logical_sense=input$logical_sense)
 	})
 	filter_num_ingr <- reactive({

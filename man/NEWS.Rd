@@ -9,6 +9,15 @@ News for package \sQuote{cocktailApp}
 \newcommand{\CRANpkg}{\href{https://cran.r-project.org/package=#1}{\pkg{#1}}}
 \newcommand{\cocktailApp}{\CRANpkg{cocktailApp}}
 }
+\section{\cocktailApp{} Version 0.2.2 (2019-0?-??) }{
+
+\itemize{
+\item merge some short ingredients.
+\item fix some units in webtender data.
+\item search by ingredient regex.
+}
+}
+
 \section{\cocktailApp{} Version 0.2.1 (2019-07-01) }{
 
 \itemize{
