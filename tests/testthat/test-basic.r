@@ -118,6 +118,12 @@ test_that("filter ingredients",{#FOLDUP
 																						must_not_have_ing=c(),
 																						logical_sense='AND'),
 							 NA)
+	expect_error(test7 <- .filter_ingredients(both,name_regex=''
+																						must_have_ing=c('Bourbon'),
+																						must_not_have_ing=c(),
+																						logical_sense='AND',
+																						extra_ids=c(1,2,3,4)),
+							 NA)
 })#UNFOLD
 test_that('plot stuff',{# FOLDUP
 	#indat <- head(cocktails,200)
