@@ -139,6 +139,7 @@ NULL
 #' The data were scraped from several websites, which falls in a legal gray area.
 #' While, in general, raw factual data can not be copyright, there is a difference between the law and a lawsuit. 
 #' The package author in no way claims any copyright on this data.
+#' @usage data(cocktails)
 #' @examples
 #' data(cocktails)
 #' str(cocktails)

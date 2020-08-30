@@ -42,7 +42,7 @@ Kindred Cocktails, \url{http://kindredcocktails.com},
 Drinks Mixer, \url{http://www.drinksmixer.com}.
 }
 \usage{
-cocktails
+data(cocktails)
 }
 \description{
 Ingredients of over 26 thousand cocktails, scraped from the web.
