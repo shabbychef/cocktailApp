@@ -27,5 +27,10 @@ data-raw/cocktails.csv : ../drinksy/drinks.csv
 data/%.rda : data-raw/%.csv
 	r -l devtools,readr -e '$* <- readr::read_csv("$<",guess_max=100000);devtools::use_data($*,overwrite=TRUE)'
 
+.PHONY : cocktail_data
+
+cocktail_data : data/cocktails.rda  ## copy over data from ../drinksy
+
+
 #for vim modeline: (do not edit)
 # vim:ts=2:sw=2:tw=129:fdm=marker:fmr=FOLDUP,UNFOLD:cms=#%s:tags=.tags;:syn=make:ft=make:ai:si:cin:nu:fo=croqt:cino=p0t0c5(0:
