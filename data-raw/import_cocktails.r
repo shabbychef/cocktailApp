@@ -1,4 +1,4 @@
-# /usr/bin/r
+#! /usr/bin/r
 #
 # Copyright 2019-2019 Steven E. Pav. All Rights Reserved.
 # Author: Steven E. Pav 
