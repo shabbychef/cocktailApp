@@ -10,7 +10,7 @@
 VMAJOR 						 = 0
 VMINOR 						 = 2
 VPATCH  					 = 1
-VDEV 							 = .0002
+VDEV 							 = .0003
 #VDEV 							 =
 PKG_NAME 					:= cocktailApp
 
