@@ -10,7 +10,7 @@
 VMAJOR 						 = 0
 VMINOR 						 = 2
 VPATCH  					 = 1
-VDEV 							 = .0003
+VDEV 							 = .0004
 #VDEV 							 =
 PKG_NAME 					:= cocktailApp
 
@@ -25,7 +25,7 @@ data-raw/cocktails.csv : ../drinksy/drinks.csv
 
 # overload
 data/%.rda : data-raw/%.csv
-	r -l devtools,readr -e '$* <- readr::read_csv("$<",guess_max=100000);devtools::use_data($*,overwrite=TRUE)'
+	r -l usethis,devtools,readr -e '$* <- readr::read_csv("$<",guess_max=100000);usethis::use_data($*,overwrite=TRUE,internal=FALSE)'
 
 .PHONY : cocktail_data
 
