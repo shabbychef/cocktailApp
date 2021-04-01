@@ -133,7 +133,7 @@ NULL
 #' }
 #' @source Difford's Guide, \url{https://www.diffordsguide.com/},
 #' Webtender, \url{https://www.webtender.com},
-#' Kindred Cocktails, \url{http://kindredcocktails.com},
+#' Kindred Cocktails, \url{https://kindredcocktails.com},
 #' Drinks Mixer, \url{http://www.drinksmixer.com}.
 #' @note 
 #' The data were scraped from several websites, which falls in a legal gray area.
