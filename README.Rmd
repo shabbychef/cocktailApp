@@ -44,7 +44,7 @@ library(cocktailApp)
 # cocktailApp
 
 [![Build Status](https://github.com/shabbychef/cocktailApp/workflows/R-CMD-check/badge.svg)](https://github.com/shabbychef/cocktailApp/actions)
-[![CRAN](https://www.r-pkg.org:443/badges/version/cocktailApp)](https://cran.r-project.org/package=cocktailApp)
+[![CRAN](https://www.r-pkg.org/badges/version/cocktailApp)](https://cran.r-project.org/package=cocktailApp)
 [![Downloads](http://cranlogs.r-pkg.org/badges/cocktailApp?color=green)](https://www.r-pkg.org:443/pkg/cocktailApp)
 [![Total](http://cranlogs.r-pkg.org/badges/grand-total/cocktailApp?color=green)](https://www.r-pkg.org:443/pkg/cocktailApp)
 
