@@ -38,8 +38,8 @@ The columns are defined as follows:
 }
 }
 \source{
-Difford's Guide, \url{http://www.diffordsguide.com/},
-Webtender, \url{http://www.webtender.com},
+Difford's Guide, \url{https://www.diffordsguide.com/},
+Webtender, \url{https://www.webtender.com},
 Kindred Cocktails, \url{http://kindredcocktails.com},
 Drinks Mixer, \url{http://www.drinksmixer.com}.
 }

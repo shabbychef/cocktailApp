@@ -3,10 +3,9 @@
 # cocktailApp
 
 [![Build Status](https://github.com/shabbychef/cocktailApp/workflows/R-CMD-check/badge.svg)](https://github.com/shabbychef/cocktailApp/actions)
-[![codecov.io](http://codecov.io/github/shabbychef/cocktailApp/coverage.svg?branch=master)](http://codecov.io/github/shabbychef/cocktailApp?branch=master)
-[![CRAN](http://www.r-pkg.org/badges/version/cocktailApp)](https://cran.r-project.org/package=cocktailApp)
-[![Downloads](http://cranlogs.r-pkg.org/badges/cocktailApp?color=green)](http://www.r-pkg.org/pkg/cocktailApp)
-[![Total](http://cranlogs.r-pkg.org/badges/grand-total/cocktailApp?color=green)](http://www.r-pkg.org/pkg/cocktailApp)
+[![CRAN](https://www.r-pkg.org:443/badges/version/cocktailApp)](https://cran.r-project.org/package=cocktailApp)
+[![Downloads](http://cranlogs.r-pkg.org/badges/cocktailApp?color=green)](https://www.r-pkg.org:443/pkg/cocktailApp)
+[![Total](http://cranlogs.r-pkg.org/badges/grand-total/cocktailApp?color=green)](https://www.r-pkg.org:443/pkg/cocktailApp)
 
 
 A Shiny app to discover cocktails.
@@ -18,7 +17,7 @@ A Shiny app to discover cocktails.
 This package can be installed from 
 [CRAN](https://cran.r-project.org/package=cocktailApp "CRAN page"),
 via [drat](https://github.com/eddelbuettel/drat "drat"), or 
-from [github](https://www.github.com/shabbychef/cocktailApp "cocktailApp")
+from [github](https://github.com/shabbychef/cocktailApp "cocktailApp")
 via devtools:
 
 

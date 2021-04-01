@@ -131,8 +131,8 @@ NULL
 #'   this is the proportion of the given cocktail that consists of the given ingredient. For a given
 #'   cocktail, the proportions should sum to one.}
 #' }
-#' @source Difford's Guide, \url{http://www.diffordsguide.com/},
-#' Webtender, \url{http://www.webtender.com},
+#' @source Difford's Guide, \url{https://www.diffordsguide.com/},
+#' Webtender, \url{https://www.webtender.com},
 #' Kindred Cocktails, \url{http://kindredcocktails.com},
 #' Drinks Mixer, \url{http://www.drinksmixer.com}.
 #' @note 
@@ -164,6 +164,10 @@ globalVariables(c('cocktails','votes','rating','cocktail','proportion','url','sh
 									'tstat','page_src','tst',
 									'has_or_must','has_and_must','has_not_must',
 									'matches_name','ingr_class','description',
+									'isfl',
+									'match_re_ing',
+									'has_ing','bad_ing',
+									'ck_ok',
 									'pct_amt',
 									'tot_amt','has_both','Other',
 									'ingredient','coingredient','cova','wts'))
