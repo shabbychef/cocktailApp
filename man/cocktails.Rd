@@ -4,7 +4,8 @@
 \name{cocktails}
 \alias{cocktails}
 \title{Cocktails Data}
-\format{A \code{data.frame} object with around 117,000 rows and 12 columns. The
+\format{
+A \code{data.frame} object with around 117,000 rows and 12 columns. The
 data were scraped from four websites: Difford's guide, Webtender, and 
 Kindred Cocktails, all scraped in late 2017; and Drinks Mixer, scraped in
 mid 2018.
@@ -34,7 +35,8 @@ The columns are defined as follows:
  \item{\code{proportion}}{For ingredients where the \code{unit} is \code{fl oz}, 
   this is the proportion of the given cocktail that consists of the given ingredient. For a given
   cocktail, the proportions should sum to one.}
-}}
+}
+}
 \source{
 Difford's Guide, \url{http://www.diffordsguide.com/},
 Webtender, \url{http://www.webtender.com},

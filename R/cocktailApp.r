@@ -69,9 +69,9 @@ NULL
 #' \newcommand{\CRANpkg}{\href{https://cran.r-project.org/package=#1}{\pkg{#1}}}
 #' \newcommand{\cocktailApp}{\CRANpkg{cocktailApp}}
 #'
-#' @section \cocktailApp{} Version 0.2.2 (2019-0?-??) :
+#' @section \cocktailApp{} Version 0.2.2 (2021-04-01) :
 #' \itemize{
-#' \item merge some short ingredients.
+#' \item merge many short ingredients.
 #' \item fix some units in webtender data.
 #' \item search by ingredient regex.
 #' }

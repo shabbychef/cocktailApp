@@ -1,7 +1,7 @@
 
-2019-0?-?? Steven E. Pav <shabbychef@gmail.com>
+2021-04-01 Steven E. Pav <shabbychef@gmail.com>
 * 0.2.2 on CRAN
-* merge some short ingredients.
+* merge many short ingredients.
 * fix some units in webtender data.
 * search by ingredient regex.
 
