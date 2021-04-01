@@ -2,7 +2,7 @@
 
 # cocktailApp
 
-[![Build Status](https://travis-ci.org/shabbychef/cocktailApp.png)](https://travis-ci.org/shabbychef/cocktailApp)
+[![Build Status](https://github.com/shabbychef/cocktailApp/workflows/R-CMD-check/badge.svg)](https://github.com/shabbychef/cocktailApp/actions)
 [![codecov.io](http://codecov.io/github/shabbychef/cocktailApp/coverage.svg?branch=master)](http://codecov.io/github/shabbychef/cocktailApp?branch=master)
 [![CRAN](http://www.r-pkg.org/badges/version/cocktailApp)](https://cran.r-project.org/package=cocktailApp)
 [![Downloads](http://cranlogs.r-pkg.org/badges/cocktailApp?color=green)](http://www.r-pkg.org/pkg/cocktailApp)

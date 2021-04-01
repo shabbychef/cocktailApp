@@ -44,3 +44,4 @@ submodule_directions.sh
 ^app.R$
 foo.r
 man/my_server.Rd
+^\.github$
