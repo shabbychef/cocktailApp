@@ -35,13 +35,14 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
+      - uses: r-lib/actions/setup-tinytex@master
+
       - uses: r-lib/actions/setup-r@v1
         with:
           r-version: ${{ matrix.config.r }}
 
       - uses: r-lib/actions/setup-pandoc@v1
 
-      - uses: r-lib/actions/setup-tinytex@master
 
       - name: Query dependencies
         run: |
@@ -71,6 +72,9 @@ jobs:
           remotes::install_deps(dependencies = TRUE)
           remotes::install_cran("rcmdcheck")
           remotes::install_cran("covr")
+          remotes::install_cran("tinytex")
+          tinytex::parse_install(text = "! LaTeX Error: File `amsthm.sty' not found.")
+          tinytex::parse_install(text = "! LaTeX Error: File `paralist.sty' not found.")
         shell: Rscript {0}
 
       - name: Check
