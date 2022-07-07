@@ -185,7 +185,7 @@ my_ui <- function(page_title='Drink Schnauzer') {  # nocov start
 		dplyr::group_by(short_ingredient) %>%
 		dplyr::summarize(tot_am=sum(proportion,na.rm=TRUE)) %>%
 		dplyr::ungroup() %>%
-		dplyr::mutate(ingr_class=cut(tot_am,breaks=c(-1,0,10,100,1000),
+		dplyr::mutate(ingr_class=cut(tot_am,breaks=c(-1,0,10,100,Inf),
 													labels=c('garnish','uncommon-spirit','common-spirit','base-spirit'))) %>%
 		dplyr::arrange(tot_am,short_ingredient) %>%
 		dplyr::mutate(ingr_class=forcats::fct_rev(ingr_class)) %>%

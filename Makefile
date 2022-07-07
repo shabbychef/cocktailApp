@@ -11,7 +11,7 @@ VMAJOR 						 = 0
 VMINOR 						 = 2
 VPATCH  					 = 2
 #VDEV 							 = .0001
-VDEV 							 =
+VDEV 							 = .001
 PKG_NAME 					:= cocktailApp
 
 RPKG_USES_RCPP 		:= 0
@@ -31,6 +31,8 @@ data/%.rda : data-raw/%.csv
 
 cocktail_data : data/cocktails.rda  ## copy over data from ../drinksy
 
+submodule_help : ## help with git submodules
+	echo "git submodule update --init --recursive"
 
 #for vim modeline: (do not edit)
 # vim:ts=2:sw=2:tw=129:fdm=marker:fmr=FOLDUP,UNFOLD:cms=#%s:tags=.tags;:syn=make:ft=make:ai:si:cin:nu:fo=croqt:cino=p0t0c5(0:

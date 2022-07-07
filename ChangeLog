@@ -1,4 +1,7 @@
 
+2022-07-06 Steven E. Pav <shabbychef@gmail.com>
+* fix bug where you could not search for Gin or Vodka.
+
 2021-04-01 Steven E. Pav <shabbychef@gmail.com>
 * 0.2.2 on CRAN
 * merge many short ingredients.
