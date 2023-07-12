@@ -468,7 +468,7 @@ applylink <- function(title,url) {
 		dplyr::filter(!is.na(proportion)) %>%
 		dplyr::mutate(rating=coalesce(rating,1)) %>%
 		dplyr::inner_join(sub_df %>%
-							 dplyr::rename(coingredient=short_ingredient,coamount=proportion),by=c('cocktail_id','rating')) %>%
+							 dplyr::rename(coingredient=short_ingredient,coamount=proportion),by=c('cocktail_id','rating'),relationship='many-to-many') %>%
 		dplyr::mutate(cova=proportion * coamount) %>%
 		dplyr::mutate(wts=rating) %>%
 		dplyr::group_by(short_ingredient,coingredient) %>%
@@ -486,8 +486,8 @@ applylink <- function(title,url) {
 		dplyr::mutate(deno=sqrt(sum_cova))
 
 	rhov <- coing %>%
-		dplyr::left_join(diagv %>% select(short_ingredient,deno),by='short_ingredient') %>%
-		dplyr::left_join(diagv %>% select(coingredient,deno) %>% rename(deno2=deno),by='coingredient') %>%
+		dplyr::left_join(diagv %>% select(short_ingredient,deno),by='short_ingredient',relationship='many-to-many') %>%
+		dplyr::left_join(diagv %>% select(coingredient,deno) %>% rename(deno2=deno),by='coingredient',relationship='many-to-many') %>%
 		dplyr::mutate(rhoval=sum_cova / (deno * deno2)) %>%
 		dplyr::filter(!is.na(rhoval)) %>% 
 		dplyr::select(short_ingredient,coingredient,ncocktails,rhoval) %>%
