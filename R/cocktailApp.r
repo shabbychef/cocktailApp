@@ -69,6 +69,13 @@ NULL
 #' \newcommand{\CRANpkg}{\href{https://cran.r-project.org/package=#1}{\pkg{#1}}}
 #' \newcommand{\cocktailApp}{\CRANpkg{cocktailApp}}
 #'
+#' @section \cocktailApp{} Version 0.2.3 (2023-07-18) :
+#' \itemize{
+#' \item fix bug where you could not search for Gin or Vodka.
+#' \item package had been archived because of dependency on ggtern.
+#' \item convert citEntry to bibentry
+#' }
+#'
 #' @section \cocktailApp{} Version 0.2.2 (2021-04-01) :
 #' \itemize{
 #' \item merge many short ingredients.

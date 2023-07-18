@@ -3,6 +3,7 @@
 2023-07-11 Steven E. Pav <shabbychef@gmail.com>
 * 0.2.3 on CRAN
 * package had been pulled because of upstream dependency.
+* convert citEntry to bibentry
 
 2022-07-06 Steven E. Pav <shabbychef@gmail.com>
 * fix bug where you could not search for Gin or Vodka.
