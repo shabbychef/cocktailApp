@@ -35,7 +35,7 @@
 #' @template etc
 #'
 #' @import shiny
-#' @importFrom dplyr mutate arrange select filter rename left_join right_join coalesce distinct summarize everything ungroup first sample_n one_of
+#' @importFrom dplyr mutate arrange select filter rename left_join right_join coalesce distinct summarize everything ungroup first sample_n one_of n
 #' @importFrom ggplot2 ggplot labs coord_flip aes geom_col geom_point geom_text guide_legend
 #' @importFrom shinythemes shinytheme
 #' @importFrom magrittr %>%

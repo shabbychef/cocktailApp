@@ -1,4 +1,6 @@
 
+* 0.2.4 on CRAN
+* adding missing reference to `dplyr::n` which broke two of the plots.
 
 2023-07-11 Steven E. Pav <shabbychef@gmail.com>
 * 0.2.3 on CRAN
