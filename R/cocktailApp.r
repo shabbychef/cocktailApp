@@ -539,6 +539,7 @@ applylink <- function(title,url) {
 		coord_flip() +
 		labs(y='amount (%)',
 				 x='ingredient',
+				 fill='cocktail',
 				 title='selected drinks')
 }
 
