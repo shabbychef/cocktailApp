@@ -137,10 +137,13 @@ test_that('plot stuff',{# FOLDUP
 
 	two_ing <- c('Bourbon','Averna')
 	expect_error(both3 <- .filter_num_ingredients(both2,must_have_ing=two_ing,min_rating=2,max_ingr=10,max_other_ingr=5),NA)
-	expect_error(ptern <- .prepare_ternary(both3,two_ing=two_ing),NA)
+	HAS_GGTERN <- FALSE
+	if (HAS_GGTERN) {
+		expect_error(ptern <- .prepare_ternary(both3,two_ing=two_ing),NA)
+		expect_error(.make_ggtern_plot(ptern,two_ing),NA)
+	}
 	#skip_on_cran()
 	#skip_on_travis()
-	expect_error(.make_ggtern_plot(ptern,two_ing),NA)
 
 	expect_error(both4 <- .filter_tstat(both3,min_t=2,t_zero=1),NA)
 	expect_error(both5 <- .filter_src(both4,from_sources=c('diffordsguide')),NA)

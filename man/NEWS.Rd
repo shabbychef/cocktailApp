@@ -9,6 +9,14 @@ News for package \sQuote{cocktailApp}
 \newcommand{\CRANpkg}{\href{https://cran.r-project.org/package=#1}{\pkg{#1}}}
 \newcommand{\cocktailApp}{\CRANpkg{cocktailApp}}
 }
+\section{\cocktailApp{} Version 0.2.4 (2025-10-30) }{
+
+\itemize{
+\item removing dependency on ggtern.
+\item adding missing reference to `dplyr::n` which broke two of the plots.
+}
+}
+
 \section{\cocktailApp{} Version 0.2.3 (2023-07-18) }{
 
 \itemize{

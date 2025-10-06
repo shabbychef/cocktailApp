@@ -69,6 +69,12 @@ NULL
 #' \newcommand{\CRANpkg}{\href{https://cran.r-project.org/package=#1}{\pkg{#1}}}
 #' \newcommand{\cocktailApp}{\CRANpkg{cocktailApp}}
 #'
+#' @section \cocktailApp{} Version 0.2.4 (2025-10-30) :
+#' \itemize{
+#' \item removing dependency on ggtern.
+#' \item adding missing reference to `dplyr::n` which broke two of the plots.
+#' }
+#'
 #' @section \cocktailApp{} Version 0.2.3 (2023-07-18) :
 #' \itemize{
 #' \item fix bug where you could not search for Gin or Vodka.
@@ -263,10 +269,6 @@ my_ui <- function(page_title='Drink Schnauzer') {  # nocov start
 						hr(),
 						helpText('Ingredients Table:'),
 						tableOutput('ingredients_table')
-						),#UNFOLD
-				tabPanel('ternary',#FOLDUP
-						helpText('A ternary plot based on the first two Must Have ingredients selected.'),
-						plotOutput('selected_ingredients_tern_plot',height='100%',width='100%')
 						),#UNFOLD
 				tabPanel('plots',#FOLDUP
 						helpText('A bar plot of ingredients in the selected cocktails.',
@@ -502,32 +504,6 @@ applylink <- function(title,url) {
 		dplyr::arrange(dplyr::desc(rhoval))
 }
 
-.prepare_ternary <- function(both,two_ing) {
-	stopifnot(length(two_ing) > 1)
-	stopifnot(all(c('cocktail_id','cocktail','rating','page_src') %in% colnames(both$cocktail)))
-	stopifnot(all(c('cocktail_id','unit','short_ingredient','proportion') %in% colnames(both$recipe)))
-
-	bycols <- both$recipe %>%
-		dplyr::filter(unit=='fl oz',
-									short_ingredient %in% two_ing) %>%
-		dplyr::group_by(cocktail_id,short_ingredient) %>%
-			dplyr::summarize(tot_amt=sum(proportion,na.rm=TRUE)) %>%
-		dplyr::ungroup() %>%
-		dplyr::rename(proportion=tot_amt) %>%
-		dplyr::group_by(cocktail_id) %>%
-			dplyr::mutate(has_both=length(proportion) > 1,
-										Other=1 - sum(proportion)) %>%
-		dplyr::ungroup() %>%
-		dplyr::filter(has_both) 
-
-	# fun! get CRAN checks to shut up.
-	. <- NULL
-	retv <- bycols %>%
-		tidyr::spread(key=short_ingredient,value=proportion,fill=0) %>%
-		setNames(gsub('\\s','_',names(.))) %>%
-		dplyr::left_join(both$cocktail %>% select(cocktail_id,cocktail,rating,page_src),by='cocktail_id')
-}
-
 .make_bar_plot <- function(both_df) {
 	#facet_grid(.~rating) + 
 	ph <- both_df %>%
@@ -541,19 +517,6 @@ applylink <- function(title,url) {
 				 x='ingredient',
 				 fill='cocktail',
 				 title='selected drinks')
-}
-
-#' @importFrom ggtern ggtern Tlab Llab Rlab
-.make_ggtern_plot <- function(tern_df,preing) {
-	ing <- gsub('\\s','_',preing)
-	ph <- tern_df %>%
-		ggtern::ggtern(ggplot2::aes_string(x=ing[1],y=ing[2],z='Other',
-																			 shape='page_src',label='cocktail',color='rating')) +
-		ggplot2::geom_point(aes(size=rating),alpha=0.5) +
-		ggtern::Llab(preing[1]) + ggtern::Tlab(preing[2]) + 
-		ggplot2::geom_text(hjust='inward',vjust='inward') +
-		ggplot2::guides(shape=guide_legend(title='source'))
-	ph
 }
 
 # testing
@@ -726,18 +689,6 @@ my_server <- function(input, output, session) { # nocov start
 		retv <- selected_drinks() %>% dplyr::select(cocktail,amt,unit,ingredient)
 	},striped=TRUE,width='100%')
 
-	output$selected_ingredients_tern_plot <- renderPlot({
-		shiny::validate(shiny::need(length(input$must_have_ing) > 1,'Must select 2 or more must have ingredients.'))
-		preing <- input$must_have_ing[1:2]
-
-		tern_df <- .prepare_ternary(both=final_both(),two_ing=preing)
-		shiny::validate(shiny::need(nrow(tern_df) > 0,paste('No cocktails found with both',preing[1],'and',preing[2])))
-		ph <- .make_ggtern_plot(tern_df,preing=preing)
-		# see https://github.com/rstudio/shiny/issues/915
-		print(ph)
-		NULL
-		#.make_tern_plot(tern_df,preing=preing)
-	},height=900,width=1300)
 	#'drinks_table_rows_all',
 	setBookmarkExclude(c('bookmark',
 											 'drinks_table_cell_clicked',
@@ -822,20 +773,6 @@ my_server <- function(input, output, session) { # nocov start
 #' }
 #' \if{latex}{
 #' \figure{Screenshot-barplot.png}{options: width=14cm}
-#' }
-#'
-#' In this screenshot, the user has selected two ingredients,
-#' \sQuote{Benedictine} and \sQuote{bourbon}, then clicked on the
-#' \sQuote{ternary} tab, which shows a ternary plot of the proportions
-#' of cocktails with non-zero proportions of the first two selected
-#' ingredients. The third dimension of the ternary plot is \sQuote{other}
-#' ingredients.
-#'
-#' \if{html}{
-#' \figure{Screenshot-ternary.png}{options: width="100\%" alt="Screenshot: ternary plot of ingredients"}
-#' }
-#' \if{latex}{
-#' \figure{Screenshot-ternary.png}{options: width=14cm}
 #' }
 #'
 #' In this screenshot, the user has checked the \dQuote{Hobson's Choice}

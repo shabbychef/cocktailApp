@@ -93,20 +93,6 @@ in all the selected cocktails.
 \figure{Screenshot-barplot.png}{options: width=14cm}
 }
 
-In this screenshot, the user has selected two ingredients,
-\sQuote{Benedictine} and \sQuote{bourbon}, then clicked on the
-\sQuote{ternary} tab, which shows a ternary plot of the proportions
-of cocktails with non-zero proportions of the first two selected
-ingredients. The third dimension of the ternary plot is \sQuote{other}
-ingredients.
-
-\if{html}{
-\figure{Screenshot-ternary.png}{options: width="100\%" alt="Screenshot: ternary plot of ingredients"}
-}
-\if{latex}{
-\figure{Screenshot-ternary.png}{options: width=14cm}
-}
-
 In this screenshot, the user has checked the \dQuote{Hobson's Choice}
 box, which adds 5 random cocktails to the cocktail table.
 

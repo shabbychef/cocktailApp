@@ -1,5 +1,7 @@
 
+2025-10-30 Steven E. Pav <shabbychef@gmail.com>
 * 0.2.4 on CRAN
+* removing dependency on ggtern.
 * adding missing reference to `dplyr::n` which broke two of the plots.
 
 2023-07-11 Steven E. Pav <shabbychef@gmail.com>

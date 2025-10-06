@@ -29,7 +29,7 @@ Imports:
     ggplot2,
     magrittr,
 dnl    Ternary,
-    ggtern,
+dnl ggtern,
     forcats,
 dnl readr,
 dnl    urltools,
