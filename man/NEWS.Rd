@@ -9,7 +9,7 @@ News for package \sQuote{cocktailApp}
 \newcommand{\CRANpkg}{\href{https://cran.r-project.org/package=#1}{\pkg{#1}}}
 \newcommand{\cocktailApp}{\CRANpkg{cocktailApp}}
 }
-\section{\cocktailApp{} Version 0.2.4 (2025-10-30) }{
+\section{\cocktailApp{} Version 0.2.4 (2025-11-04) }{
 
 \itemize{
 \item removing dependency on ggtern.

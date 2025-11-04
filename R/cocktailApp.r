@@ -58,7 +58,7 @@
 #' 
 #' This package is maintained as a hobby. 
 #'
-NULL
+"_PACKAGE"
 
 #' @title News for package 'cocktailApp':
 #'
@@ -69,7 +69,7 @@ NULL
 #' \newcommand{\CRANpkg}{\href{https://cran.r-project.org/package=#1}{\pkg{#1}}}
 #' \newcommand{\cocktailApp}{\CRANpkg{cocktailApp}}
 #'
-#' @section \cocktailApp{} Version 0.2.4 (2025-10-30) :
+#' @section \cocktailApp{} Version 0.2.4 (2025-11-04) :
 #' \itemize{
 #' \item removing dependency on ggtern.
 #' \item adding missing reference to `dplyr::n` which broke two of the plots.
