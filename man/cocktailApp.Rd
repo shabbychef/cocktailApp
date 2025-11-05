@@ -58,7 +58,7 @@ six cocktails in the cocktail table on the right in the main
 tab.
 
 \if{html}{
-\figure{Screenshot-mainpage.png}{options: width="100\%" alt="Screenshot: landing page of app"}
+\figure{Screenshot-mainpage.png}{options: width="1500px" alt="Screenshot: landing page of app"}
 }
 \if{latex}{
 \figure{Screenshot-mainpage.png}{options: width=14cm}
@@ -74,7 +74,7 @@ which is recommended since those pages typically have better
 instructions.
 
 \if{html}{
-\figure{Screenshot-ingredients.png}{options: width="100\%" alt="Screenshot: landing page of app, with selected cocktails"}
+\figure{Screenshot-ingredients.png}{options: width="1500px" alt="Screenshot: landing page of app, with selected cocktails"}
 }
 \if{latex}{
 \figure{Screenshot-ingredients.png}{options: width=14cm}
@@ -87,7 +87,7 @@ shows a bar plot of the proportions of all ingredients
 in all the selected cocktails.
 
 \if{html}{
-\figure{Screenshot-barplot.png}{options: width="100\%" alt="Screenshot: bar plot of ingredients"}
+\figure{Screenshot-barplot.png}{options: width="1500px" alt="Screenshot: bar plot of ingredients"}
 }
 \if{latex}{
 \figure{Screenshot-barplot.png}{options: width=14cm}
@@ -97,7 +97,7 @@ In this screenshot, the user has checked the \dQuote{Hobson's Choice}
 box, which adds 5 random cocktails to the cocktail table.
 
 \if{html}{
-\figure{Screenshot-hobsons.png}{options: width="100\%" alt="Screenshot: main page with Hobsons choice"}
+\figure{Screenshot-hobsons.png}{options: width="1500px" alt="Screenshot: main page with Hobsons choice"}
 }
 \if{latex}{
 \figure{Screenshot-hobsons.png}{options: width=14cm}

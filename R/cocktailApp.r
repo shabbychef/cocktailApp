@@ -69,7 +69,7 @@
 #' \newcommand{\CRANpkg}{\href{https://cran.r-project.org/package=#1}{\pkg{#1}}}
 #' \newcommand{\cocktailApp}{\CRANpkg{cocktailApp}}
 #'
-#' @section \cocktailApp{} Version 0.2.4 (2025-11-04) :
+#' @section \cocktailApp{} Version 0.2.4 (2025-11-05) :
 #' \itemize{
 #' \item removing dependency on ggtern.
 #' \item adding missing reference to `dplyr::n` which broke two of the plots.
@@ -147,7 +147,7 @@ NULL
 #' @source Difford's Guide, \url{https://www.diffordsguide.com/},
 #' Webtender, \url{https://www.webtender.com},
 #' Kindred Cocktails, \url{https://kindredcocktails.com},
-#' Drinks Mixer, \url{http://www.drinksmixer.com}.
+#' Drinks Mixer, formerly at www dot drinksmixer dot com, but now defunct.
 #' @note 
 #' The data were scraped from several websites, which falls in a legal gray area.
 #' While, in general, raw factual data can not be copyright, there is a difference between the law and a lawsuit. 
@@ -740,7 +740,7 @@ my_server <- function(input, output, session) { # nocov start
 #' tab.
 #'
 #' \if{html}{
-#' \figure{Screenshot-mainpage.png}{options: width="100\%" alt="Screenshot: landing page of app"}
+#' \figure{Screenshot-mainpage.png}{options: width="1500px" alt="Screenshot: landing page of app"}
 #' }
 #' \if{latex}{
 #' \figure{Screenshot-mainpage.png}{options: width=14cm}
@@ -756,7 +756,7 @@ my_server <- function(input, output, session) { # nocov start
 #' instructions.
 #'
 #' \if{html}{
-#' \figure{Screenshot-ingredients.png}{options: width="100\%" alt="Screenshot: landing page of app, with selected cocktails"}
+#' \figure{Screenshot-ingredients.png}{options: width="1500px" alt="Screenshot: landing page of app, with selected cocktails"}
 #' }
 #' \if{latex}{
 #' \figure{Screenshot-ingredients.png}{options: width=14cm}
@@ -769,7 +769,7 @@ my_server <- function(input, output, session) { # nocov start
 #' in all the selected cocktails.
 #'
 #' \if{html}{
-#' \figure{Screenshot-barplot.png}{options: width="100\%" alt="Screenshot: bar plot of ingredients"}
+#' \figure{Screenshot-barplot.png}{options: width="1500px" alt="Screenshot: bar plot of ingredients"}
 #' }
 #' \if{latex}{
 #' \figure{Screenshot-barplot.png}{options: width=14cm}
@@ -779,7 +779,7 @@ my_server <- function(input, output, session) { # nocov start
 #' box, which adds 5 random cocktails to the cocktail table.
 #'
 #' \if{html}{
-#' \figure{Screenshot-hobsons.png}{options: width="100\%" alt="Screenshot: main page with Hobsons choice"}
+#' \figure{Screenshot-hobsons.png}{options: width="1500px" alt="Screenshot: main page with Hobsons choice"}
 #' }
 #' \if{latex}{
 #' \figure{Screenshot-hobsons.png}{options: width=14cm}

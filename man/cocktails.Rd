@@ -41,7 +41,7 @@ The columns are defined as follows:
 Difford's Guide, \url{https://www.diffordsguide.com/},
 Webtender, \url{https://www.webtender.com},
 Kindred Cocktails, \url{https://kindredcocktails.com},
-Drinks Mixer, \url{http://www.drinksmixer.com}.
+Drinks Mixer, formerly at www dot drinksmixer dot com, but now defunct.
 }
 \usage{
 data(cocktails)
